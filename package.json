@@ -1,0 +1,27 @@
+{
+  "name": "codebase-stats-collector",
+  "version": "1.0.0",
+  "description": "Module to collect data from a git repository.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anton-107/codebase-stats-collector.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anton-107/codebase-stats-collector/issues"
+  },
+  "homepage": "https://github.com/anton-107/codebase-stats-collector#readme",
+  "dependencies": {
+    "isomorphic-git": "^1.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.18",
+    "ts-node": "^10.9.1"
+  }
+}
