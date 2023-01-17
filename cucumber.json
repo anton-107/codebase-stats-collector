@@ -1,0 +1,6 @@
+{
+  "default": {
+    "paths": ["specs/"],
+    "import": ["specs/steps/**/*.ts"]
+  }
+}
