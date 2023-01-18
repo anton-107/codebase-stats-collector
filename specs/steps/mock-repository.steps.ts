@@ -21,6 +21,16 @@ Given('there is a mock commit with author {string}', function (commitAuthor: str
   this.mockRepo.addCommit(commitAuthor);
 });
 
+Given('there is a mock commit that changed file {string}', function (string) {
+  // Write code here that turns the phrase above into concrete actions
+  return 'pending';
+});
+
+Given('there is a mock commit with author {string} that changed file {string}', function (string, string2) {
+  // Write code here that turns the phrase above into concrete actions
+  return 'pending';
+});
+
 When('I call GetNumberOfCommitsByAuthor', function () {
   // Write code here that turns the phrase above into concrete actions
   return 'pending';
@@ -32,6 +42,16 @@ Then('I receive a map with {float} keys in response', function (float) {
 });
 
 Then('key {string} has a value of {string}', function (string, string2) {
+  // Write code here that turns the phrase above into concrete actions
+  return 'pending';
+});
+
+When('I call GetMostChangedFiles', function () {
+  // Write code here that turns the phrase above into concrete actions
+  return 'pending';
+});
+
+When('I call GetNumberOfContributors for files', function () {
   // Write code here that turns the phrase above into concrete actions
   return 'pending';
 });

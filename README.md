@@ -17,7 +17,7 @@ $ git log --since 2019-01-01 --name-status $* | grep -E '^[A-Z]\s+' | cut -c3-50
 In bash for a single file:
 
 ```
-$ git log --name-status PATH/TO/GILE | grep 'Author' | sort | uniq -c | wc -l
+$ git log --name-status PATH/TO/FILE | grep 'Author' | sort | uniq -c | wc -l
 ```
 
 In bash for all files:
