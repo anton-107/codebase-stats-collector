@@ -16,17 +16,12 @@ Given('there is a mock repository', function () {
   this.mockRepo = new MockRepository();
 });
 
-Given('there is a mock commit with author {string}', function (commitAuthor: string) {
-  // Write code here that turns the phrase above into concrete actions
-  this.mockRepo.addCommit(commitAuthor);
-});
-
-Given('there is a mock commit that changed file {string}', function (string) {
+Given('there is a contributor {string}', function (contributorName: string) {
   // Write code here that turns the phrase above into concrete actions
   return 'pending';
 });
 
-Given('there is a mock commit with author {string} that changed file {string}', function (string, string2) {
+Given('they changed file {string}', function (fileName: string) {
   // Write code here that turns the phrase above into concrete actions
   return 'pending';
 });
