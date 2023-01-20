@@ -1,8 +1,9 @@
-import { Given, When, Then } from "@cucumber/cucumber";
+import { Given, Then, When } from "@cucumber/cucumber";
 import assert from "assert";
+
 import { TestScenario } from "./test-scenario.js";
 
-let testScenario: TestScenario = new TestScenario();
+const testScenario: TestScenario = new TestScenario();
 
 Given("there is a mock repository", function () {
   testScenario.createMockRepository();

@@ -1,6 +1,51 @@
-import git from "isomorphic-git";
 import fs from "fs";
+import git from "isomorphic-git";
+
 import { ChangedFile } from "./interfaces.js";
+
+async function getFilesDiff(dir: string, prevOID: string, nextOID: string) {
+  return await git.walk({
+    fs,
+    dir,
+    trees: [git.TREE({ ref: prevOID }), git.TREE({ ref: nextOID })],
+    map: async function (filepath, [commitA, commitB]) {
+      // ignore directories
+      if (filepath === ".") {
+        return;
+      }
+      if (!commitA || !commitB) {
+        return;
+      }
+      if (
+        (await commitA.type()) === "tree" ||
+        (await commitB.type()) === "tree"
+      ) {
+        return;
+      }
+
+      // generate ids:
+      const aOID = await commitA.oid();
+      const bOID = await commitB.oid();
+
+      // determine modification type:
+      let type = "equal";
+      if (aOID !== bOID) {
+        type = "modify";
+      }
+      if (aOID === undefined) {
+        type = "add";
+      }
+      if (bOID === undefined) {
+        type = "remove";
+      }
+
+      return {
+        path: `/${filepath}`,
+        type: type,
+      };
+    },
+  });
+}
 
 async function main() {
   const dir = process.env.SOURCE_DIR;
@@ -9,54 +54,19 @@ async function main() {
 
   let i = 0;
   let previousCommit;
-  for (let c of commits) {
+  for (const c of commits) {
     if (!previousCommit) {
       previousCommit = c;
       continue;
     }
 
-    const results: ChangedFile[] = await git.walk({
-      fs,
+    const results: ChangedFile[] = await getFilesDiff(
       dir,
-      trees: [git.TREE({ ref: previousCommit.oid }), git.TREE({ ref: c.oid })],
-      map: async function (filepath, [commitA, commitB]) {
-        // ignore directories
-        if (filepath === ".") {
-          return;
-        }
-        if (!commitA || !commitB) {
-          return;
-        }
-        if (
-          (await commitA.type()) === "tree" ||
-          (await commitB.type()) === "tree"
-        ) {
-          return;
-        }
+      previousCommit.oid,
+      c.oid
+    );
 
-        // generate ids:
-        const aOID = await commitA.oid();
-        const bOID = await commitB.oid();
-
-        // determine modification type:
-        let type = "equal";
-        if (aOID !== bOID) {
-          type = "modify";
-        }
-        if (aOID === undefined) {
-          type = "add";
-        }
-        if (bOID === undefined) {
-          type = "remove";
-        }
-
-        return {
-          path: `/${filepath}`,
-          type: type,
-        };
-      },
-    });
-
+    // eslint-disable-next-line no-console
     console.log(
       previousCommit,
       "changed files",
