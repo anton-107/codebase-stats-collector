@@ -1,44 +1,32 @@
 import { Given, When, Then } from "@cucumber/cucumber";
+import assert from "assert";
+import { TestScenario } from "./test-scenario.js";
 
-interface MockCommit {
-  author: string;
-}
-
-class MockRepository {
-  private commits: MockCommit[] = [];
-  public addCommit(author: string) {
-    this.commits.push({author});
-  }
-}
+let testScenario: TestScenario  = new TestScenario();
 
 Given('there is a mock repository', function () {
-  // Write code here that turns the phrase above into concrete actions
-  this.mockRepo = new MockRepository();
+  testScenario.createMockRepository();
 });
 
 Given('there is a contributor {string}', function (contributorName: string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+  testScenario.setCurrentContributor(contributorName);
 });
 
 Given('they changed file {string}', function (fileName: string) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+  testScenario.commitSingleFileChange(fileName);
 });
 
-When('I call GetNumberOfCommitsByAuthor', function () {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+When('I call GetNumberOfCommitsByAuthor', async function () {
+  await testScenario.getNumberOfCommitsByAuthor();
 });
 
-Then('I receive a map with {float} keys in response', function (float) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+Then('I receive a map with {float} keys in response', function (expectedLength: number) {
+  assert.equal(Object.keys(testScenario.getResponseMap()).length, expectedLength);
 });
 
-Then('key {string} has a value of {string}', function (string, string2) {
-  // Write code here that turns the phrase above into concrete actions
-  return 'pending';
+Then('key {string} has a value of {string}', function (key: string, value: string) {
+  const map = testScenario.getResponseMap();
+  assert.equal(map[key], value);
 });
 
 When('I call GetMostChangedFiles', function () {
