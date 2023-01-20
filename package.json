@@ -5,7 +5,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_OPTIONS=\"--loader ts-node/esm\" cucumber-js --publish-quiet"
+    "build": "tsc",
+    "test": "NODE_OPTIONS=\"--loader ts-node/esm\" cucumber-js --publish-quiet",
+    "check-format": "prettier --check .",
+    "fix-format": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,7 @@
   "devDependencies": {
     "@cucumber/cucumber": "^8.10.0",
     "@types/node": "^18.11.18",
+    "prettier": "^2.8.3",
     "ts-node": "^10.9.1"
   }
 }

@@ -4,7 +4,7 @@ export interface Contributor {
 }
 
 export interface ChangedFile {
-  type: 'modify' | 'add' | 'remove' | 'equal';
+  type: "modify" | "add" | "remove" | "equal";
   path: string;
 }
 
@@ -14,7 +14,7 @@ export interface Commit {
     message: string;
     author: Contributor;
     committer: Contributor;
-  },
+  };
   payload: string;
 }
 export interface ExpandedCommit {

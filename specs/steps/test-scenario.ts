@@ -1,5 +1,5 @@
-import { Commit } from '../../src/interfaces.js';
-import {getNumberOfCommitsByAuthor} from './../../src/stats/number-of-commits-by-author.js';
+import { Commit } from "../../src/interfaces.js";
+import { getNumberOfCommitsByAuthor } from "./../../src/stats/number-of-commits-by-author.js";
 
 type Contributor = string;
 
@@ -14,15 +14,15 @@ class MockRepository {
     this.commits.push(commit);
   }
   public getCommits(): Commit[] {
-    return this.commits.map(x => {
+    return this.commits.map((x) => {
       return {
-        oid: 'fake-oid',
-        payload: 'fake-payload',
+        oid: "fake-oid",
+        payload: "fake-payload",
         commit: {
-          message: 'fake-message',
+          message: "fake-message",
           author: { name: x.author },
           committer: { name: x.author },
-        }
+        },
       };
     });
   }
@@ -30,7 +30,7 @@ class MockRepository {
 
 export class TestScenario {
   private currentRepository = new MockRepository();
-  private currentContributor: Contributor = 'default author';
+  private currentContributor: Contributor = "default author";
   private lastResponseMap: Record<string, string | number>;
 
   public getResponseMap() {
@@ -45,10 +45,12 @@ export class TestScenario {
   public commitSingleFileChange(fileName: string) {
     this.currentRepository.addCommit({
       author: this.currentContributor,
-      changedFiles: [fileName]
-    })
+      changedFiles: [fileName],
+    });
   }
   public async getNumberOfCommitsByAuthor(): Promise<void> {
-    this.lastResponseMap = getNumberOfCommitsByAuthor(this.currentRepository.getCommits());
+    this.lastResponseMap = getNumberOfCommitsByAuthor(
+      this.currentRepository.getCommits()
+    );
   }
 }
