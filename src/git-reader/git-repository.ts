@@ -28,6 +28,8 @@ export class GitRepository {
         commit: previousCommit,
         changedFiles,
       });
+
+      previousCommit = c;
     }
     return results;
   }

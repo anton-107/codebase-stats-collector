@@ -39,9 +39,8 @@ Then(
   }
 );
 
-When("I call GetMostChangedFiles", function () {
-  // Write code here that turns the phrase above into concrete actions
-  return "pending";
+When("I call GetNumberOfChangesPerFile", async function () {
+  await testScenario.getNumberOfChangesPerFile();
 });
 
 When("I call GetNumberOfContributors for files", function () {

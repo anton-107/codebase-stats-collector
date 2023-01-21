@@ -1,4 +1,5 @@
-import { Commit } from "../../src/interfaces.js";
+import { Commit, ExpandedCommit } from "../../src/interfaces.js";
+import { getNumberOfChangesPerFile } from "./../../src/stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./../../src/stats/number-of-commits-by-author.js";
 
 type Contributor = string;
@@ -23,6 +24,27 @@ class MockRepository {
           author: { name: x.author },
           committer: { name: x.author },
         },
+      };
+    });
+  }
+  public getExpandedCommits(): ExpandedCommit[] {
+    return this.commits.map((x) => {
+      return {
+        commit: {
+          oid: "fake-oid",
+          payload: "fake-payload",
+          commit: {
+            message: "fake-message",
+            author: { name: x.author },
+            committer: { name: x.author },
+          },
+        },
+        changedFiles: x.changedFiles.map((f) => {
+          return {
+            path: f,
+            type: "modify",
+          };
+        }),
       };
     });
   }
@@ -51,6 +73,11 @@ export class TestScenario {
   public async getNumberOfCommitsByAuthor(): Promise<void> {
     this.lastResponseMap = getNumberOfCommitsByAuthor(
       this.currentRepository.getCommits()
+    );
+  }
+  public async getNumberOfChangesPerFile(): Promise<void> {
+    this.lastResponseMap = getNumberOfChangesPerFile(
+      this.currentRepository.getExpandedCommits()
     );
   }
 }
