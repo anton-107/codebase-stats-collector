@@ -1,6 +1,7 @@
 import { Commit, ExpandedCommit } from "../../src/interfaces.js";
 import { getNumberOfChangesPerFile } from "./../../src/stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./../../src/stats/number-of-commits-by-author.js";
+import { getNumberOfContributorsPerFile } from "./../../src/stats/number-of-contributors-per-file.js";
 
 type Contributor = string;
 
@@ -77,6 +78,11 @@ export class TestScenario {
   }
   public async getNumberOfChangesPerFile(): Promise<void> {
     this.lastResponseMap = getNumberOfChangesPerFile(
+      this.currentRepository.getExpandedCommits()
+    );
+  }
+  public async getNumberOfContributorsPerFile(): Promise<void> {
+    this.lastResponseMap = getNumberOfContributorsPerFile(
       this.currentRepository.getExpandedCommits()
     );
   }
