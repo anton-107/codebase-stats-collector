@@ -1,7 +1,7 @@
 import { Commit, ExpandedCommit } from "../../src/interfaces.js";
-import { getNumberOfChangesPerFile } from "./../../src/stats/number-of-changes-per-file.js";
-import { getNumberOfCommitsByAuthor } from "./../../src/stats/number-of-commits-by-author.js";
-import { getNumberOfContributorsPerFile } from "./../../src/stats/number-of-contributors-per-file.js";
+import { getNumberOfChangesPerFile } from "../../src/stats/number-of-changes-per-file.js";
+import { getNumberOfCommitsByAuthor } from "../../src/stats/number-of-commits-by-author.js";
+import { getNumberOfContributorsPerFile } from "../../src/stats/number-of-contributors-per-file.js";
 
 type Contributor = string;
 
@@ -51,7 +51,7 @@ class MockRepository {
   }
 }
 
-export class TestScenario {
+export class MockRepositoryTestScenario {
   private currentRepository = new MockRepository();
   private currentContributor: Contributor = "default author";
   private lastResponseMap: Record<string, string | number>;
