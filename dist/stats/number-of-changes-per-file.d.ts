@@ -1,4 +1,6 @@
 import { ExpandedCommit } from "../interfaces.js";
-export declare function getNumberOfChangesPerFile(
-  commits: ExpandedCommit[]
-): Record<string, number>;
+interface GetNumberOfChangesPerFileOptions {
+    fileIgnorePattern?: string;
+}
+export declare function getNumberOfChangesPerFile(commits: ExpandedCommit[], options?: GetNumberOfChangesPerFileOptions): Record<string, number>;
+export {};
