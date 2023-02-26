@@ -55,6 +55,7 @@ export class MockRepositoryTestScenario {
   private currentRepository = new MockRepository();
   private currentContributor: Contributor = "default author";
   private lastResponseMap: Record<string, string | number>;
+  private fileIgnorePattern: string | undefined = undefined;
 
   public getResponseMap() {
     return this.lastResponseMap;
@@ -64,6 +65,9 @@ export class MockRepositoryTestScenario {
   }
   public setCurrentContributor(contributor: Contributor) {
     this.currentContributor = contributor;
+  }
+  public setFileIgnorePattern(pattern: string): void {
+    this.fileIgnorePattern = pattern;
   }
   public commitSingleFileChange(fileName: string) {
     this.currentRepository.addCommit({
@@ -78,7 +82,10 @@ export class MockRepositoryTestScenario {
   }
   public async getNumberOfChangesPerFile(): Promise<void> {
     this.lastResponseMap = getNumberOfChangesPerFile(
-      this.currentRepository.getExpandedCommits()
+      this.currentRepository.getExpandedCommits(),
+      {
+        fileIgnorePattern: this.fileIgnorePattern,
+      }
     );
   }
   public async getNumberOfContributorsPerFile(): Promise<void> {

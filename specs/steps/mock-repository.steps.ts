@@ -18,6 +18,10 @@ Given("they changed file {string}", function (fileName: string) {
   testScenario.commitSingleFileChange(fileName);
 });
 
+Given("I set ignore pattern to {string}", function (ignorePattern: string) {
+  testScenario.setFileIgnorePattern(ignorePattern);
+});
+
 When("I call GetNumberOfCommitsByAuthor", async function () {
   await testScenario.getNumberOfCommitsByAuthor();
 });
