@@ -1,4 +1,5 @@
 import { Commit, ExpandedCommit } from "../../src/interfaces.js";
+import { getListOfContributorsPerFile } from "../../src/stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "../../src/stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "../../src/stats/number-of-commits-by-author.js";
 import { getNumberOfContributorsPerFile } from "../../src/stats/number-of-contributors-per-file.js";
@@ -22,8 +23,8 @@ class MockRepository {
         payload: "fake-payload",
         commit: {
           message: "fake-message",
-          author: { name: x.author },
-          committer: { name: x.author },
+          author: { name: x.author, timestamp: 0 },
+          committer: { name: x.author, timestamp: 0 },
         },
       };
     });
@@ -36,8 +37,8 @@ class MockRepository {
           payload: "fake-payload",
           commit: {
             message: "fake-message",
-            author: { name: x.author },
-            committer: { name: x.author },
+            author: { name: x.author, timestamp: 0 },
+            committer: { name: x.author, timestamp: 0 },
           },
         },
         changedFiles: x.changedFiles.map((f) => {
@@ -92,5 +93,14 @@ export class MockRepositoryTestScenario {
     this.lastResponseMap = getNumberOfContributorsPerFile(
       this.currentRepository.getExpandedCommits()
     );
+  }
+  public async listNumberOfContributorsPerFile(): Promise<void> {
+    const results = getListOfContributorsPerFile(
+      this.currentRepository.getExpandedCommits()
+    );
+    this.lastResponseMap = {};
+    Object.keys(results).forEach((k) => {
+      this.lastResponseMap[k] = JSON.stringify(results[k]);
+    });
   }
 }

@@ -51,3 +51,7 @@ When("I call GetNumberOfChangesPerFile", async function () {
 When("I call GetNumberOfContributors for files", async function () {
   await testScenario.getNumberOfContributorsPerFile();
 });
+
+When("I call GetListOfContributorsPerFile method", async function () {
+  await testScenario.listNumberOfContributorsPerFile();
+});

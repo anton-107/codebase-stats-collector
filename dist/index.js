@@ -1,4 +1,5 @@
 import { GitRepository } from "./git-reader/git-repository.js";
+import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
 import { getNumberOfContributorsPerFile } from "./stats/number-of-contributors-per-file.js";
@@ -7,6 +8,7 @@ async function main() {
     const repo = new GitRepository(dir);
     const commits = await repo.getListOfCommits();
     const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
+    const listOfContributorsPerFile = await getListOfContributorsPerFile(commitsWithChangedFiles);
     const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
     const commitsPerFile = getNumberOfChangesPerFile(commitsWithChangedFiles);
     const contributorsPerFile = getNumberOfContributorsPerFile(commitsWithChangedFiles);
@@ -24,6 +26,8 @@ async function main() {
         return [x, contributorsPerFile[x]];
     })
         .sort((a, b) => Number(a[1]) - Number(b[1])));
+    // eslint-disable-next-line no-console
+    console.log("detailed contributors for each file", listOfContributorsPerFile);
 }
 main();
 //# sourceMappingURL=index.js.map

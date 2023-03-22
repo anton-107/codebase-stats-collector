@@ -1,6 +1,7 @@
 export interface Contributor {
   name: string;
   email?: string;
+  timestamp: number;
 }
 
 export interface ChangedFile {
