@@ -45,7 +45,9 @@ export function getListOfContributorsPerFile(
 
   commits.forEach((commit) => {
     commit.changedFiles.forEach((file) => {
-      setContributorForFile(changedFiles, commit, file);
+      if (file.type !== "equal") {
+        setContributorForFile(changedFiles, commit, file);
+      }
     });
   });
 
