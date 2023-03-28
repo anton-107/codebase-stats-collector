@@ -19,6 +19,7 @@ export interface Commit {
   payload: string;
 }
 export interface ExpandedCommit {
+  oid: string;
   commit: Commit;
   changedFiles: ChangedFile[];
 }

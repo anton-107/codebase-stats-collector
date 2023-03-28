@@ -25,6 +25,7 @@ export class GitRepository {
       );
 
       results.push({
+        oid: c.oid,
         commit: previousCommit,
         changedFiles,
       });
@@ -42,34 +43,48 @@ export class GitRepository {
       dir: this.repoPath,
       trees: [git.TREE({ ref: prevOID }), git.TREE({ ref: nextOID })],
       map: async function (filepath, [commitA, commitB]) {
+        let aOID = "";
+        let bOID = "";
+        let aType = "";
+        let bType = "";
+
         // ignore directories
         if (filepath === ".") {
           return;
         }
-        if (!commitA || !commitB) {
-          return;
-        }
-        if (
-          (await commitA.type()) === "tree" ||
-          (await commitB.type()) === "tree"
-        ) {
+        if (!commitA && !commitB) {
           return;
         }
 
-        // generate ids:
-        const aOID = await commitA.oid();
-        const bOID = await commitB.oid();
+        // determine types:
+        if (commitA) {
+          aType = await commitA.type();
+        }
+        if (commitB) {
+          bType = await commitB.type();
+        }
+        if (aType === "tree" || bType === "tree") {
+          return;
+        }
+
+        // fetch commit ids:
+        if (commitA) {
+          aOID = await commitA.oid();
+        }
+        if (commitB) {
+          bOID = await commitB.oid();
+        }
 
         // determine modification type:
         let type = "equal";
         if (aOID !== bOID) {
           type = "modify";
         }
-        if (aOID === undefined) {
-          type = "add";
-        }
-        if (bOID === undefined) {
+        if (!aOID) {
           type = "remove";
+        }
+        if (!bOID) {
+          type = "add";
         }
 
         return {

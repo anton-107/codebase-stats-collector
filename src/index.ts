@@ -4,6 +4,11 @@ import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
 import { getNumberOfContributorsPerFile } from "./stats/number-of-contributors-per-file.js";
 
+function log(arg1: string, arg2: object) {
+  // eslint-disable-next-line no-console
+  console.log(arg1, arg2);
+}
+
 async function main() {
   const dir = process.env.SOURCE_DIR;
   const repo = new GitRepository(dir);
@@ -18,10 +23,8 @@ async function main() {
     commitsWithChangedFiles
   );
 
-  // eslint-disable-next-line no-console
-  console.log("commitsByAuthor", commitsByAuthor);
-  // eslint-disable-next-line no-console
-  console.log(
+  log("commitsByAuthor", commitsByAuthor);
+  log(
     "hot files (files with most changes)",
     Object.keys(commitsPerFile)
       .map((x) => {
@@ -30,8 +33,7 @@ async function main() {
       .sort((a, b) => Number(b[1]) - Number(a[1]))
   );
 
-  // eslint-disable-next-line no-console
-  console.log(
+  log(
     "knowledge gaps (files with least number of contributors)",
     Object.keys(contributorsPerFile)
       .map((x) => {
@@ -40,7 +42,6 @@ async function main() {
       .sort((a, b) => Number(a[1]) - Number(b[1]))
   );
 
-  // eslint-disable-next-line no-console
-  console.log("detailed contributors for each file", listOfContributorsPerFile);
+  log("detailed contributors for each file", listOfContributorsPerFile);
 }
 main();
