@@ -1,22 +1,23 @@
 export interface Contributor {
-  name: string;
-  email?: string;
-  timestamp: number;
+    name: string;
+    email?: string;
+    timestamp: number;
 }
 export interface ChangedFile {
-  type: "modify" | "add" | "remove" | "equal";
-  path: string;
+    type: "modify" | "add" | "remove" | "equal";
+    path: string;
 }
 export interface Commit {
-  oid: string;
-  commit: {
-    message: string;
-    author: Contributor;
-    committer: Contributor;
-  };
-  payload: string;
+    oid: string;
+    commit: {
+        message: string;
+        author: Contributor;
+        committer: Contributor;
+    };
+    payload: string;
 }
 export interface ExpandedCommit {
-  commit: Commit;
-  changedFiles: ChangedFile[];
+    oid: string;
+    commit: Commit;
+    changedFiles: ChangedFile[];
 }

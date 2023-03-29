@@ -1,4 +1,5 @@
 import { GitRepository } from "./git-reader/git-repository.js";
+import { ExpandedCommit } from "./interfaces.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
@@ -9,21 +10,14 @@ function log(arg1: string, arg2: object) {
   console.log(arg1, arg2);
 }
 
-async function main() {
-  const dir = process.env.SOURCE_DIR;
-  const repo = new GitRepository(dir);
+async function collectCommitsByAuthor(repo: GitRepository) {
   const commits = await repo.getListOfCommits();
-  const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
-  const listOfContributorsPerFile = await getListOfContributorsPerFile(
-    commitsWithChangedFiles
-  );
   const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
-  const commitsPerFile = getNumberOfChangesPerFile(commitsWithChangedFiles);
-  const contributorsPerFile = getNumberOfContributorsPerFile(
-    commitsWithChangedFiles
-  );
-
   log("commitsByAuthor", commitsByAuthor);
+}
+
+async function collectHotFiles(commitsWithChangedFiles: ExpandedCommit[]) {
+  const commitsPerFile = getNumberOfChangesPerFile(commitsWithChangedFiles);
   log(
     "hot files (files with most changes)",
     Object.keys(commitsPerFile)
@@ -32,7 +26,11 @@ async function main() {
       })
       .sort((a, b) => Number(b[1]) - Number(a[1]))
   );
-
+}
+async function collectKnowledgeGaps(commitsWithChangedFiles: ExpandedCommit[]) {
+  const contributorsPerFile = getNumberOfContributorsPerFile(
+    commitsWithChangedFiles
+  );
   log(
     "knowledge gaps (files with least number of contributors)",
     Object.keys(contributorsPerFile)
@@ -41,7 +39,23 @@ async function main() {
       })
       .sort((a, b) => Number(a[1]) - Number(b[1]))
   );
-
+}
+async function collectDetailedContributorsPerFile(
+  commitsWithChangedFiles: ExpandedCommit[]
+) {
+  const listOfContributorsPerFile = await getListOfContributorsPerFile(
+    commitsWithChangedFiles
+  );
   log("detailed contributors for each file", listOfContributorsPerFile);
+}
+
+async function main() {
+  const dir = process.env.SOURCE_DIR;
+  const repo = new GitRepository(dir);
+  const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
+  await collectCommitsByAuthor(repo);
+  await collectHotFiles(commitsWithChangedFiles);
+  await collectKnowledgeGaps(commitsWithChangedFiles);
+  await collectDetailedContributorsPerFile(commitsWithChangedFiles);
 }
 main();
