@@ -9,6 +9,7 @@ type Contributor = string;
 interface MockCommit {
   author: Contributor;
   changedFiles: string[];
+  changeTimestamp: number;
 }
 
 class MockRepository {
@@ -23,8 +24,8 @@ class MockRepository {
         payload: "fake-payload",
         commit: {
           message: "fake-message",
-          author: { name: x.author, timestamp: 0 },
-          committer: { name: x.author, timestamp: 0 },
+          author: { name: x.author, timestamp: x.changeTimestamp },
+          committer: { name: x.author, timestamp: x.changeTimestamp },
         },
       };
     });
@@ -32,13 +33,14 @@ class MockRepository {
   public getExpandedCommits(): ExpandedCommit[] {
     return this.commits.map((x) => {
       return {
+        oid: "fake-oid",
         commit: {
           oid: "fake-oid",
           payload: "fake-payload",
           commit: {
             message: "fake-message",
-            author: { name: x.author, timestamp: 0 },
-            committer: { name: x.author, timestamp: 0 },
+            author: { name: x.author, timestamp: x.changeTimestamp },
+            committer: { name: x.author, timestamp: x.changeTimestamp },
           },
         },
         changedFiles: x.changedFiles.map((f) => {
@@ -70,10 +72,11 @@ export class MockRepositoryTestScenario {
   public setFileIgnorePattern(pattern: string): void {
     this.fileIgnorePattern = pattern;
   }
-  public commitSingleFileChange(fileName: string) {
+  public commitSingleFileChange(fileName: string, timestamp: number) {
     this.currentRepository.addCommit({
       author: this.currentContributor,
       changedFiles: [fileName],
+      changeTimestamp: timestamp,
     });
   }
   public async getNumberOfCommitsByAuthor(): Promise<void> {

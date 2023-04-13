@@ -24,6 +24,7 @@ function setContributorForFile(changedFiles, commit, file) {
 }
 export function getListOfContributorsPerFile(commits) {
     const changedFiles = {};
+    // collect contributors data:
     commits.forEach((commit) => {
         commit.changedFiles.forEach((file) => {
             if (file.type !== "equal") {
@@ -31,6 +32,18 @@ export function getListOfContributorsPerFile(commits) {
             }
         });
     });
+    // sort contributors from earliest to latest:
+    for (const file of Object.keys(changedFiles)) {
+        changedFiles[file].sort((a, b) => {
+            if (a.firstChangeTimestamp < b.firstChangeTimestamp) {
+                return -1;
+            }
+            if (a.lastChangeTimestamp > b.lastChangeTimestamp) {
+                return 1;
+            }
+            return a.firstChangeTimestamp < b.firstChangeTimestamp ? -1 : 1;
+        });
+    }
     return changedFiles;
 }
 //# sourceMappingURL=list-of-contributors-per-file.js.map

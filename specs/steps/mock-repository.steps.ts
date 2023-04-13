@@ -15,8 +15,18 @@ Given("there is a contributor {string}", function (contributorName: string) {
 });
 
 Given("they changed file {string}", function (fileName: string) {
-  testScenario.commitSingleFileChange(fileName);
+  testScenario.commitSingleFileChange(fileName, 0);
 });
+
+Given(
+  "on {string} they changed file {string}",
+  function (changeDate: string, fileName: string) {
+    testScenario.commitSingleFileChange(
+      fileName,
+      Date.parse(changeDate) / 1000
+    );
+  }
+);
 
 Given("I set ignore pattern to {string}", function (ignorePattern: string) {
   testScenario.setFileIgnorePattern(ignorePattern);
