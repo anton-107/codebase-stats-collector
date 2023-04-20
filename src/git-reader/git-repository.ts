@@ -1,6 +1,7 @@
 import fs from "fs";
 import git from "isomorphic-git";
 
+import { log, time, timeLog } from "../index.js";
 import { ChangedFile, Commit, ExpandedCommit } from "../interfaces.js";
 
 export class GitRepository {
@@ -12,13 +13,30 @@ export class GitRepository {
   public async getListOfCommitsWithChangedFiles(): Promise<ExpandedCommit[]> {
     const results: ExpandedCommit[] = [];
     const commits = await this.getListOfCommits();
+    log("Fetched list of commits", {
+      numberOfCommits: commits.length,
+      newestCommitDate: new Date(
+        commits[0].commit.author.timestamp * 1000
+      ).toISOString(),
+      oldestCommitDate: new Date(
+        commits[commits.length - 1].commit.author.timestamp * 1000
+      ).toISOString(),
+    });
     let previousCommit;
+    let i = 0;
+    time("getListOfCommitsWithChangedFiles");
     for (const c of commits) {
+      i += 1;
       if (!previousCommit) {
         previousCommit = c;
         continue;
       }
 
+      log("Getting files diff between two commits", {
+        progress: `${i} of ${commits.length}`,
+        commitDate: new Date(c.commit.author.timestamp * 1000).toISOString(),
+      });
+      timeLog("getListOfCommitsWithChangedFiles");
       const changedFiles: ChangedFile[] = await this.getFilesDiff(
         previousCommit.oid,
         c.oid

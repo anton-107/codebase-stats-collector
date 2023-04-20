@@ -3,9 +3,17 @@ import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-f
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
 import { getNumberOfContributorsPerFile } from "./stats/number-of-contributors-per-file.js";
-function log(arg1, arg2) {
+export function log(arg1, arg2) {
     // eslint-disable-next-line no-console
     console.log(arg1, arg2);
+}
+export function time(timerName) {
+    // eslint-disable-next-line no-console
+    console.time(timerName);
+}
+export function timeLog(timerName) {
+    // eslint-disable-next-line no-console
+    console.timeLog(timerName);
 }
 async function collectCommitsByAuthor(repo) {
     const commits = await repo.getListOfCommits();
@@ -35,7 +43,11 @@ async function collectDetailedContributorsPerFile(commitsWithChangedFiles) {
 async function main() {
     const dir = process.env.SOURCE_DIR;
     const repo = new GitRepository(dir);
+    log("Getting a list of changed files", { dir });
     const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
+    log("Finished fetching a list of changed files", {
+        numberOfFiles: commitsWithChangedFiles.length,
+    });
     await collectCommitsByAuthor(repo);
     await collectHotFiles(commitsWithChangedFiles);
     await collectKnowledgeGaps(commitsWithChangedFiles);
