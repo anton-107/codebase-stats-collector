@@ -1,8 +1,13 @@
 import fs from "fs";
 import git from "isomorphic-git";
+import { Readable } from "stream";
 
 import { log, time, timeLog } from "../index.js";
 import { ChangedFile, Commit, ExpandedCommit } from "../interfaces.js";
+
+interface GitReadOptions {
+  stream?: Readable;
+}
 
 export class GitRepository {
   constructor(private repoPath: string) {}
@@ -10,7 +15,9 @@ export class GitRepository {
   public async getListOfCommits(): Promise<Commit[]> {
     return await git.log({ fs, dir: this.repoPath });
   }
-  public async getListOfCommitsWithChangedFiles(): Promise<ExpandedCommit[]> {
+  public async getListOfCommitsWithChangedFiles(
+    options: GitReadOptions = {}
+  ): Promise<ExpandedCommit[]> {
     const results: ExpandedCommit[] = [];
     const commits = await this.getListOfCommits();
     log("Fetched list of commits", {
@@ -42,11 +49,17 @@ export class GitRepository {
         c.oid
       );
 
-      results.push({
+      const result = {
         oid: c.oid,
         commit: previousCommit,
         changedFiles,
-      });
+      };
+
+      results.push(result);
+
+      if (options.stream) {
+        options.stream.push(result);
+      }
 
       previousCommit = c;
     }

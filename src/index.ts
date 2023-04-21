@@ -1,3 +1,5 @@
+import { Readable } from "stream";
+
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ExpandedCommit } from "./interfaces.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
@@ -61,7 +63,22 @@ async function main() {
   const dir = process.env.SOURCE_DIR;
   const repo = new GitRepository(dir);
   log("Getting a list of changed files", { dir });
-  const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
+  const commitsStream = new Readable({
+    objectMode: true,
+    read() {
+      // do nothing.
+    },
+  });
+  commitsStream.on("data", (commit) => {
+    log("Commit", commit);
+  });
+  commitsStream.on("end", () => {
+    log("done reading commits", {});
+  });
+
+  const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles({
+    stream: commitsStream,
+  });
   log("Finished fetching a list of changed files", {
     numberOfFiles: commitsWithChangedFiles.length,
   });
