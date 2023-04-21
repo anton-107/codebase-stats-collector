@@ -3,7 +3,7 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "simple-import-sort"],
   extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
-  ignorePatterns: ["/dist/**/*"],
+  ignorePatterns: ["/dist/**/*", "coverage/**/*"],
   rules: {
     "simple-import-sort/imports": "error",
     "simple-import-sort/exports": "error",
@@ -18,11 +18,12 @@ module.exports = {
   },
   overrides: [
     {
-      files: ["**/*.test.ts", "**/*.dev.ts"],
+      files: ["**/*.test.ts", "**/*.dev.ts", "specs/**/*.ts"],
       rules: {
         "max-lines-per-function": "off",
         "max-statements": "off",
         "max-nested-callbacks": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
       },
     },
   ],

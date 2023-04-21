@@ -22,12 +22,7 @@ export class MockTextFileTestScenario {
     this.currentFilePath = fileFullPath;
   }
   public async getNumberOfLines() {
-    if (!this.currentFilePath) {
-      throw Error(
-        "currentFilePath is undefined. Set it first in your test before calling getNumberOfLines"
-      );
-    }
-    this.currentResult = await getNumberOfLines(this.currentFilePath);
+    this.currentResult = await getNumberOfLines(this.currentFilePath!);
   }
   public getCurrentResult() {
     return this.currentResult;
