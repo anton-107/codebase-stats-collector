@@ -61,7 +61,7 @@ export function getListOfContributorsPerFile(
       if (a.lastChangeTimestamp > b.lastChangeTimestamp) {
         return 1;
       }
-      return a.firstChangeTimestamp < b.firstChangeTimestamp ? -1 : 1;
+      return 0;
     });
   }
 
