@@ -9,7 +9,7 @@ export class GitRepository {
     async getListOfCommits() {
         return await git.log({ fs, dir: this.repoPath });
     }
-    async getListOfCommitsWithChangedFiles() {
+    async getListOfCommitsWithChangedFiles(options = {}) {
         const results = [];
         const commits = await this.getListOfCommits();
         log("Fetched list of commits", {
@@ -32,11 +32,15 @@ export class GitRepository {
             });
             timeLog("getListOfCommitsWithChangedFiles");
             const changedFiles = await this.getFilesDiff(previousCommit.oid, c.oid);
-            results.push({
+            const result = {
                 oid: c.oid,
                 commit: previousCommit,
                 changedFiles,
-            });
+            };
+            results.push(result);
+            if (options.stream) {
+                options.stream.push(result);
+            }
             previousCommit = c;
         }
         return results;

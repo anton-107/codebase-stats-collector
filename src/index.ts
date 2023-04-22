@@ -2,6 +2,7 @@ import { Readable } from "stream";
 
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ExpandedCommit } from "./interfaces.js";
+import { NumberOfChangesPerFileAggregate } from "./stats/aggregate/number-of-changes-per-file-aggregate.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
@@ -69,8 +70,20 @@ async function main() {
       // do nothing.
     },
   });
+  const intermediateAggregateMonthly = new NumberOfChangesPerFileAggregate({
+    strategy: "year-month",
+  });
+  const intermediateAggregateQuarterly = new NumberOfChangesPerFileAggregate({
+    strategy: "year-quarter",
+  });
+
   commitsStream.on("data", (commit) => {
     log("Commit", commit);
+    intermediateAggregateMonthly.addCommit(commit);
+    intermediateAggregateQuarterly.addCommit(commit);
+
+    log("monthly data: ", intermediateAggregateMonthly.getData());
+    log("quarterly data: ", intermediateAggregateQuarterly.getData());
   });
   commitsStream.on("end", () => {
     log("done reading commits", {});

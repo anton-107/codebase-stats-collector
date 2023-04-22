@@ -1,4 +1,6 @@
+import { Readable } from "stream";
 import { GitRepository } from "./git-reader/git-repository.js";
+import { NumberOfChangesPerFileAggregate } from "./stats/aggregate/number-of-changes-per-file-aggregate.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
@@ -44,7 +46,31 @@ async function main() {
     const dir = process.env.SOURCE_DIR;
     const repo = new GitRepository(dir);
     log("Getting a list of changed files", { dir });
-    const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles();
+    const commitsStream = new Readable({
+        objectMode: true,
+        read() {
+            // do nothing.
+        },
+    });
+    const intermediateAggregateMonthly = new NumberOfChangesPerFileAggregate({
+        strategy: "year-month",
+    });
+    const intermediateAggregateQuarterly = new NumberOfChangesPerFileAggregate({
+        strategy: "year-quarter",
+    });
+    commitsStream.on("data", (commit) => {
+        log("Commit", commit);
+        intermediateAggregateMonthly.addCommit(commit);
+        intermediateAggregateQuarterly.addCommit(commit);
+        log("monthly data: ", intermediateAggregateMonthly.getData());
+        log("quarterly data: ", intermediateAggregateQuarterly.getData());
+    });
+    commitsStream.on("end", () => {
+        log("done reading commits", {});
+    });
+    const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles({
+        stream: commitsStream,
+    });
     log("Finished fetching a list of changed files", {
         numberOfFiles: commitsWithChangedFiles.length,
     });
