@@ -1,7 +1,7 @@
-import { Commit, ExpandedCommit } from "../../interfaces.js";
+import { ChangedFile, Commit, ExpandedCommit } from "../../interfaces.js";
 
 type AggreateStrategy = "year-month" | "year-quarter";
-type FilePath = string;
+export type FilePath = string;
 type AggregateKey = string;
 
 type CommitToAggregateKey = (commit: Commit) => AggregateKey;
@@ -43,7 +43,11 @@ export abstract class Aggregate<T> {
   }
 
   abstract initializeValue(): T;
-  abstract incrementValue(currentValue: T): T;
+  abstract incrementValue(
+    currentValue: T,
+    changedFile: ChangedFile,
+    expandedCommit: ExpandedCommit
+  ): T;
 
   public addCommit(expandedCommit: ExpandedCommit) {
     const aggregateKey = this.strategy(expandedCommit.commit);
@@ -59,7 +63,9 @@ export abstract class Aggregate<T> {
         this.files[file.path][aggregateKey] = this.initializeValue();
       }
       this.files[file.path][aggregateKey] = this.incrementValue(
-        this.files[file.path][aggregateKey]
+        this.files[file.path][aggregateKey],
+        file,
+        expandedCommit
       );
     }
   }

@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 import { GitRepository } from "./git-reader/git-repository.js";
-import { NumberOfChangesPerFileAggregate } from "./stats/aggregate/number-of-changes-per-file-aggregate.js";
+import { NumberOfContributorsPerFileAggregate } from "./stats/aggregate/number-of-contributors-per-file-aggregate.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
@@ -52,10 +52,10 @@ async function main() {
             // do nothing.
         },
     });
-    const intermediateAggregateMonthly = new NumberOfChangesPerFileAggregate({
+    const intermediateAggregateMonthly = new NumberOfContributorsPerFileAggregate({
         strategy: "year-month",
     });
-    const intermediateAggregateQuarterly = new NumberOfChangesPerFileAggregate({
+    const intermediateAggregateQuarterly = new NumberOfContributorsPerFileAggregate({
         strategy: "year-quarter",
     });
     commitsStream.on("data", (commit) => {

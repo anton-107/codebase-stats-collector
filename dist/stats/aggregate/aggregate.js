@@ -37,7 +37,7 @@ export class Aggregate {
             if (!this.files[file.path][aggregateKey]) {
                 this.files[file.path][aggregateKey] = this.initializeValue();
             }
-            this.files[file.path][aggregateKey] = this.incrementValue(this.files[file.path][aggregateKey]);
+            this.files[file.path][aggregateKey] = this.incrementValue(this.files[file.path][aggregateKey], file, expandedCommit);
         }
     }
     getData() {
