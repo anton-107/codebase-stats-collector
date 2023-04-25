@@ -1,6 +1,6 @@
 import { ChangedFile, ExpandedCommit } from "../interfaces.js";
 
-interface Contributor {
+export interface Contributor {
   name: string;
   numberOfChanges: number;
   firstChangeTimestamp: number;

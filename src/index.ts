@@ -2,7 +2,7 @@ import { Readable } from "stream";
 
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ExpandedCommit } from "./interfaces.js";
-import { NumberOfContributorsPerFileAggregate } from "./stats/aggregate/number-of-contributors-per-file-aggregate.js";
+import { ListOfContributorsPerFileAggregate } from "./stats/aggregate/list-of-contributors-per-file-aggregate.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
@@ -70,15 +70,14 @@ async function main() {
       // do nothing.
     },
   });
-  const intermediateAggregateMonthly = new NumberOfContributorsPerFileAggregate(
+  const intermediateAggregateMonthly = new ListOfContributorsPerFileAggregate({
+    strategy: "year-month",
+  });
+  const intermediateAggregateQuarterly = new ListOfContributorsPerFileAggregate(
     {
-      strategy: "year-month",
+      strategy: "year-quarter",
     }
   );
-  const intermediateAggregateQuarterly =
-    new NumberOfContributorsPerFileAggregate({
-      strategy: "year-quarter",
-    });
 
   commitsStream.on("data", (commit) => {
     log("Commit", commit);
@@ -86,7 +85,9 @@ async function main() {
     intermediateAggregateQuarterly.addCommit(commit);
 
     log("monthly data: ", intermediateAggregateMonthly.getData());
-    log("quarterly data: ", intermediateAggregateQuarterly.getData());
+    log("quarterly data: ", {
+      data: JSON.stringify(intermediateAggregateQuarterly.getData()),
+    });
   });
   commitsStream.on("end", () => {
     log("done reading commits", {});
