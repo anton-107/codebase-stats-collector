@@ -1,6 +1,8 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import assert from "assert";
 
+import { AggregateStrategy } from "../../src/stats/aggregate/aggregate.js";
+import { ListOfContributorsPerFileAggregate } from "../../src/stats/aggregate/list-of-contributors-per-file-aggregate.js";
 import { MockRepositoryTestScenario } from "./mock-repository-test-scenario.js";
 
 const testScenario: MockRepositoryTestScenario =
@@ -50,7 +52,11 @@ Then(
   "key {string} has a value of {string}",
   function (key: string, value: string) {
     const map = testScenario.getResponseMap();
-    assert.equal(map[key], value);
+    let valueToCompare = map[key];
+    if (typeof valueToCompare !== "string") {
+      valueToCompare = JSON.stringify(map[key]);
+    }
+    assert.equal(valueToCompare, value);
   }
 );
 
@@ -65,3 +71,16 @@ When("I call GetNumberOfContributors for files", async function () {
 When("I call GetListOfContributorsPerFile method", async function () {
   await testScenario.listNumberOfContributorsPerFile();
 });
+
+When(
+  "I use a {string} aggregate for {string}",
+  function (aggregateKey: AggregateStrategy, aggregateClass: string) {
+    switch (aggregateClass) {
+      case "ListOfContributorsPerFileAggregate":
+        testScenario.runCommitsThroughAggregate(
+          new ListOfContributorsPerFileAggregate({ strategy: aggregateKey })
+        );
+        break;
+    }
+  }
+);

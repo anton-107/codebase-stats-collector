@@ -1,13 +1,13 @@
 import { ChangedFile, Commit, ExpandedCommit } from "../../interfaces.js";
 
-type AggreateStrategy = "year-month" | "year-quarter";
+export type AggregateStrategy = "year-month" | "year-quarter";
 export type FilePath = string;
 type AggregateKey = string;
 
 type CommitToAggregateKey = (commit: Commit) => AggregateKey;
 
 interface AggregateOptions {
-  strategy: AggreateStrategy;
+  strategy: AggregateStrategy;
 }
 
 const commitToYearMonth: CommitToAggregateKey = (commit) => {
@@ -21,7 +21,7 @@ const commitToYearMonth: CommitToAggregateKey = (commit) => {
 const commitToYearQuarter: CommitToAggregateKey = (commit) => {
   const t = commit.commit.author.timestamp;
   const commitDate = new Date(t * 1000);
-  const quarter = Math.ceil(commitDate.getMonth() / 3);
+  const quarter = Math.ceil(commitDate.getMonth() / 3) + 1;
   return `${commitDate.getFullYear()}-Q${quarter}`;
 };
 

@@ -1,9 +1,9 @@
 import { ChangedFile, ExpandedCommit } from "../../interfaces.js";
-type AggreateStrategy = "year-month" | "year-quarter";
+export type AggregateStrategy = "year-month" | "year-quarter";
 export type FilePath = string;
 type AggregateKey = string;
 interface AggregateOptions {
-    strategy: AggreateStrategy;
+    strategy: AggregateStrategy;
 }
 export declare abstract class Aggregate<T> {
     private files;

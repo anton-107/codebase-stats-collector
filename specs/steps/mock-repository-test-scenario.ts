@@ -1,4 +1,5 @@
 import { Commit, ExpandedCommit } from "../../src/interfaces.js";
+import { Aggregate } from "../../src/stats/aggregate/aggregate.js";
 import { getListOfContributorsPerFile } from "../../src/stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "../../src/stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "../../src/stats/number-of-commits-by-author.js";
@@ -57,7 +58,11 @@ class MockRepository {
 export class MockRepositoryTestScenario {
   private currentRepository = new MockRepository();
   private currentContributor: Contributor = "default author";
-  private lastResponseMap: Record<string, string | number>;
+  private lastResponseMap: Record<
+    string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    string | number | Record<string, any>
+  >;
   private fileIgnorePattern: string | undefined = undefined;
 
   public getResponseMap() {
@@ -105,5 +110,10 @@ export class MockRepositoryTestScenario {
     Object.keys(results).forEach((k) => {
       this.lastResponseMap[k] = JSON.stringify(results[k]);
     });
+  }
+  public runCommitsThroughAggregate<T>(aggregate: Aggregate<T>): void {
+    const commits = this.currentRepository.getExpandedCommits();
+    commits.forEach((c) => aggregate.addCommit(c));
+    this.lastResponseMap = aggregate.getData();
   }
 }
