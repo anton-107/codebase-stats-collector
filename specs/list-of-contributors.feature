@@ -39,9 +39,9 @@ Feature: Collect detailed list of contributors for a file
     Scenario: 3 files changed in 5 commits in various time ran through aggregate
       Given there is a mock repository
       Given there is a contributor 'Author One'
+      And on '2022-01-03' they changed file 'file1'
       And on '2022-01-01' they changed file 'file1'
-      And on '2021-01-01' they changed file 'file1'
-      And on '2021-01-01' they changed file 'file2'
+      And on '2022-01-02' they changed file 'file1'
       Given there is a contributor 'Author Two'
       And on '2020-01-01' they changed file 'file2'
       And on '2022-01-01' they changed file 'file3'
@@ -53,7 +53,7 @@ Feature: Collect detailed list of contributors for a file
       And on '2022-01-01' they changed file 'file3'
       When I use a 'year-month' aggregate for 'ListOfContributorsPerFileAggregate'
       Then I receive a map with 3 keys in response
-      And key 'file1' has a value of '{"2022-01":[{"name":"Author One","numberOfChanges":2,"firstChangeTimestamp":1609459200,"lastChangeTimestamp":1640995200}]}'
+      And key 'file1' has a value of '{"2022-01":[{"name":"Author One","numberOfChanges":3,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1641168000}]}'
       When I use a 'year-quarter' aggregate for 'ListOfContributorsPerFileAggregate'
       Then I receive a map with 3 keys in response
-      And key 'file1' has a value of '{"2022-Q1":[{"name":"Author One","numberOfChanges":2,"firstChangeTimestamp":1609459200,"lastChangeTimestamp":1640995200}]}'
+      And key 'file1' has a value of '{"2022-Q1":[{"name":"Author One","numberOfChanges":3,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1641168000}]}'
