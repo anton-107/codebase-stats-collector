@@ -54,6 +54,8 @@ Feature: Collect detailed list of contributors for a file
       When I use a 'year-month' aggregate for 'ListOfContributorsPerFileAggregate'
       Then I receive a map with 3 keys in response
       And key 'file1' has a value of '{"2022-01":[{"name":"Author One","numberOfChanges":3,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1641168000}]}'
+      And key 'file2' has a value of '{"2020-01":[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1577836800,"lastChangeTimestamp":1577836800},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":1584230400,"lastChangeTimestamp":1584230400}],"2020-03":[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1577836800,"lastChangeTimestamp":1577836800},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":1584230400,"lastChangeTimestamp":1584230400}]}'
       When I use a 'year-quarter' aggregate for 'ListOfContributorsPerFileAggregate'
       Then I receive a map with 3 keys in response
       And key 'file1' has a value of '{"2022-Q1":[{"name":"Author One","numberOfChanges":3,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1641168000}]}'
+      And key 'file2' has a value of '{"2020-Q1":[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1577836800,"lastChangeTimestamp":1577836800},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":1584230400,"lastChangeTimestamp":1584230400}]}'

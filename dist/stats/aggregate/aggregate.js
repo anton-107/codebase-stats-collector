@@ -6,7 +6,7 @@ const commitToYearMonth = (commit) => {
 const commitToYearQuarter = (commit) => {
     const t = commit.commit.author.timestamp;
     const commitDate = new Date(t * 1000);
-    const quarter = Math.ceil(commitDate.getMonth() / 3) + 1;
+    const quarter = Math.max(Math.ceil(commitDate.getMonth() / 3), 1);
     return `${commitDate.getFullYear()}-Q${quarter}`;
 };
 export class Aggregate {
