@@ -1,16 +1,12 @@
 import { Aggregate } from "./aggregate.js";
 export class ListOfContributorsPerFileAggregate extends Aggregate {
-    contributorsPerFile = {};
     initializeValue() {
         return [];
     }
     incrementValue(currentValue, changedFile, expandedCommit) {
         const commitAuthor = expandedCommit.commit.commit.author.name;
         const commitTimestamp = expandedCommit.commit.commit.author.timestamp;
-        if (!this.contributorsPerFile[changedFile.path]) {
-            this.contributorsPerFile[changedFile.path] = [];
-        }
-        let contributor = this.contributorsPerFile[changedFile.path].find((x) => x.name === commitAuthor);
+        let contributor = currentValue.find((x) => x.name === commitAuthor);
         if (!contributor) {
             contributor = {
                 name: commitAuthor,
@@ -18,7 +14,7 @@ export class ListOfContributorsPerFileAggregate extends Aggregate {
                 firstChangeTimestamp: commitTimestamp,
                 lastChangeTimestamp: commitTimestamp,
             };
-            this.contributorsPerFile[changedFile.path].push(contributor);
+            currentValue.push(contributor);
         }
         contributor.numberOfChanges += 1;
         if (contributor.firstChangeTimestamp > commitTimestamp) {
@@ -27,7 +23,7 @@ export class ListOfContributorsPerFileAggregate extends Aggregate {
         if (contributor.lastChangeTimestamp < commitTimestamp) {
             contributor.lastChangeTimestamp = commitTimestamp;
         }
-        this.contributorsPerFile[changedFile.path].sort((a, b) => {
+        currentValue.sort((a, b) => {
             if (a.firstChangeTimestamp < b.firstChangeTimestamp) {
                 return -1;
             }
@@ -36,7 +32,7 @@ export class ListOfContributorsPerFileAggregate extends Aggregate {
             }
             return 0;
         });
-        return this.contributorsPerFile[changedFile.path];
+        return currentValue;
     }
 }
 //# sourceMappingURL=list-of-contributors-per-file-aggregate.js.map
