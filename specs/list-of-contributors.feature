@@ -14,6 +14,18 @@ Feature: Collect detailed list of contributors for a file
     Then I receive a map with 3 keys in response
     And key 'file2' has a value of '[{"name":"Author One","numberOfChanges":1,"firstChangeTimestamp":0,"lastChangeTimestamp":0},{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":0,"lastChangeTimestamp":0},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":0,"lastChangeTimestamp":0}]'
 
+  Scenario: 1 file changed in 3 commits by three different authors ran through aggregate
+    Given there is a mock repository
+    Given there is a contributor 'Author One'
+    And on '2023-04-15' they changed file 'file1'
+    Given there is a contributor 'Author Two'
+    And on '2023-04-14' they changed file 'file1'
+    Given there is a contributor 'Author Three'
+    And on '2023-04-15' they changed file 'file1'
+    When I use a 'year-month' aggregate for 'ListOfContributorsPerFileAggregate'
+    Then I receive a map with 1 keys in response
+    And key 'file1' has a value of '{"2023-04":[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1681430400,"lastChangeTimestamp":1681430400},{"name":"Author One","numberOfChanges":1,"firstChangeTimestamp":1681516800,"lastChangeTimestamp":1681516800},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":1681516800,"lastChangeTimestamp":1681516800}]}'
+
   Scenario: 3 files changed in 5 commits in various time
     Given there is a mock repository
     Given there is a contributor 'Author One'
@@ -34,7 +46,6 @@ Feature: Collect detailed list of contributors for a file
     And key 'file1' has a value of '[{"name":"Author One","numberOfChanges":2,"firstChangeTimestamp":1609459200,"lastChangeTimestamp":1640995200}]'
     And key 'file2' has a value of '[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1577836800,"lastChangeTimestamp":1577836800},{"name":"Author Three","numberOfChanges":1,"firstChangeTimestamp":1584230400,"lastChangeTimestamp":1584230400},{"name":"Author One","numberOfChanges":1,"firstChangeTimestamp":1609459200,"lastChangeTimestamp":1609459200}]'
     And key 'file3' has a value of '[{"name":"Author Two","numberOfChanges":1,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1640995200},{"name":"Author Three","numberOfChanges":4,"firstChangeTimestamp":1640995200,"lastChangeTimestamp":1641254400}]'
-
 
     Scenario: 3 files changed in 5 commits in various time ran through aggregate
       Given there is a mock repository
