@@ -6,3 +6,9 @@ Feature: Aggregate class is an abstract class to keep summary of a repository st
     Given I use a TestAggregate class
     When I use a 'year-week' strategy
     Then I receive an error reading 'Unknown aggregate strategy'
+
+  Scenario: commits of type equal should not result in a increment
+    Given I use a TestAggregate class
+    When I use a 'year-month' strategy
+    And I add commit of type 'equal'
+    Then incrementValue method of the aggregate should not have been called
