@@ -27,3 +27,30 @@ Then(
     testScenario.checkIncrementCallsCount(0);
   }
 );
+When("I call listFiles method", function () {
+  testScenario.listFiles();
+});
+Then("I get an empty list in response", function () {
+  testScenario.checkLastResponseDeepEqual([]);
+});
+When(
+  "I add commit of type {string} with filename {string} and commite date {string}",
+  function (commitType: ChangedFileType, filename: string, commitDate: string) {
+    testScenario.addSingleFileCommit(commitType, filename, commitDate);
+  }
+);
+When("I call listAggregates method for {string}", function (fileName: string) {
+  testScenario.listAggregates(fileName);
+});
+Then("I get a list with {int} value in response", function (int: number) {
+  testScenario.checkLastResponseListLength(int);
+});
+When(
+  "I call getValue method for {string} and {string}",
+  function (fileName: string, aggregateKey: string) {
+    testScenario.getValue(fileName, aggregateKey);
+  }
+);
+Then("I get a number with value {int} in response", function (int) {
+  testScenario.checkLastResponseDeepEqual(int);
+});

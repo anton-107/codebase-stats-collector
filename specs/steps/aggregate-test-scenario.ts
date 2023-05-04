@@ -22,6 +22,7 @@ export class AggregateTestScenario {
   private aggregateInstanceClass: typeof TestAggregate;
   private aggregateInstance: Aggregate<number>;
   private lastKnownError: Error | undefined;
+  private lastResponse: string[] | number | undefined;
 
   public setAggregateInstanceClass(aggregateClass: typeof TestAggregate) {
     this.aggregateInstanceClass = aggregateClass;
@@ -38,6 +39,18 @@ export class AggregateTestScenario {
   public getLastKnownError() {
     return this.lastKnownError;
   }
+  public addSingleFileCommit(
+    commitType: ChangedFileType,
+    filename: string,
+    commitDate: string
+  ) {
+    const commit = this.buildMockCommit();
+    commit.changedFiles.push({ path: filename, type: commitType });
+    const timestamp = Date.parse(commitDate) / 1000;
+    commit.commit.commit.author.timestamp = timestamp;
+    commit.commit.commit.committer.timestamp = timestamp;
+    this.aggregateInstance.addCommit(commit);
+  }
   public addCommitWithType(commitType: ChangedFileType) {
     const commit = this.buildMockCommit();
     commit.changedFiles.push({ path: "fake-file", type: commitType });
@@ -45,6 +58,24 @@ export class AggregateTestScenario {
   }
   public checkIncrementCallsCount(expectedValue: number) {
     assert.equal(incrementCalls, expectedValue);
+  }
+  public listFiles() {
+    this.lastResponse = this.aggregateInstance.listFiles();
+  }
+  public listAggregates(fileName: string) {
+    this.lastResponse = this.aggregateInstance.listAggregates(fileName);
+  }
+  public checkLastResponseDeepEqual(
+    expectedValue: string[] | number | undefined
+  ) {
+    assert.deepStrictEqual(this.lastResponse, expectedValue);
+  }
+  public checkLastResponseListLength(expectedValue: number) {
+    assert.ok(Array.isArray(this.lastResponse));
+    assert.equal(this.lastResponse.length, expectedValue);
+  }
+  public getValue(fileName: string, aggregateKey: string) {
+    this.lastResponse = this.aggregateInstance.getValue(fileName, aggregateKey);
   }
   private buildMockCommit(): ExpandedCommit {
     return {
@@ -58,12 +89,7 @@ export class AggregateTestScenario {
           committer: { name: "fake-author", timestamp: 0 },
         },
       },
-      changedFiles: [].map((f) => {
-        return {
-          path: f,
-          type: "modify",
-        };
-      }),
+      changedFiles: [],
     };
   }
 }
