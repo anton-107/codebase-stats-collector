@@ -3,8 +3,9 @@ export interface Contributor {
     email?: string;
     timestamp: number;
 }
+export type ChangedFileType = "modify" | "add" | "remove" | "equal";
 export interface ChangedFile {
-    type: "modify" | "add" | "remove" | "equal";
+    type: ChangedFileType;
     path: string;
 }
 export interface Commit {

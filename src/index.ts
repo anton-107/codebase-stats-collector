@@ -62,6 +62,10 @@ async function collectDetailedContributorsPerFile(
 
 async function main() {
   const dir = process.env.SOURCE_DIR;
+  if (!dir) {
+    throw new Error("SOURCE_DIR is not set");
+  }
+
   const repo = new GitRepository(dir);
   log("Getting a list of changed files", { dir });
   const commitsStream = new Readable({

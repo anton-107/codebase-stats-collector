@@ -12,7 +12,9 @@
     "fix-format": "prettier --write .",
     "lint": "eslint . --ext .ts",
     "fix-lint": "eslint . --ext .ts --fix",
-    "fix": "npm run fix-format && npm run fix-lint"
+    "fix": "npm run fix-format && npm run fix-lint",
+    "run-dev": "NODE_OPTIONS=\"--loader ts-node/esm\" node src/index.ts",
+    "run-built": "node dist/index.js"
   },
   "repository": {
     "type": "git",
