@@ -81,4 +81,7 @@ export abstract class Aggregate<T> {
   public getValue(filePath: FilePath, aggregateKey: AggregateKey): T {
     return this.files[filePath][aggregateKey];
   }
+  public displayReport(): string {
+    return "TODO: report will be here";
+  }
 }

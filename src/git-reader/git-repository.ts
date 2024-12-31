@@ -2,7 +2,7 @@ import fs from "fs";
 import git from "isomorphic-git";
 import { Readable } from "stream";
 
-import { log, time, timeLog } from "../index.js";
+import { debug, log, time, timeLog } from "../index.js";
 import { ChangedFile, Commit, ExpandedCommit } from "../interfaces.js";
 
 interface GitReadOptions {
@@ -39,7 +39,7 @@ export class GitRepository {
         continue;
       }
 
-      log("Getting files diff between two commits", {
+      debug("Getting files diff between two commits", {
         progress: `${i} of ${commits.length}`,
         commitDate: new Date(c.commit.author.timestamp * 1000).toISOString(),
       });

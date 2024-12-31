@@ -12,13 +12,26 @@ export function log(arg1: string, arg2: object) {
   // eslint-disable-next-line no-console
   console.log(arg1, arg2);
 }
+export function debug(arg1: string, arg2: object) {
+  if (process.env.NODE_ENV !== "production") {
+    // eslint-disable-next-line no-console
+    console.debug(arg1, arg2);
+  }
+}
 export function time(timerName: string) {
   // eslint-disable-next-line no-console
   console.time(timerName);
 }
 export function timeLog(timerName: string) {
+  if (process.env.NODE_ENV !== "production") {
+    // eslint-disable-next-line no-console
+    console.timeLog(timerName);
+  }
+}
+function clearConsole() {
+  process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
   // eslint-disable-next-line no-console
-  console.timeLog(timerName);
+  console.clear();
 }
 
 async function collectCommitsByAuthor(repo: GitRepository) {
@@ -67,7 +80,7 @@ async function main() {
   }
 
   const repo = new GitRepository(dir);
-  log("Getting a list of changed files", { dir });
+  debug("Getting a list of changed files", { dir });
   const commitsStream = new Readable({
     objectMode: true,
     read() {
@@ -88,9 +101,11 @@ async function main() {
     intermediateAggregateMonthly.addCommit(commit);
     intermediateAggregateQuarterly.addCommit(commit);
 
-    log("monthly data: ", intermediateAggregateMonthly.getData());
+    clearConsole();
+
+    // log("monthly data: ", intermediateAggregateMonthly.getData());
     log("quarterly data: ", {
-      data: JSON.stringify(intermediateAggregateQuarterly.getData()),
+      data: JSON.stringify(intermediateAggregateQuarterly.displayReport()),
     });
   });
   commitsStream.on("end", () => {
