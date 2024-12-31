@@ -1,6 +1,10 @@
 import { Commit } from "../interfaces.js";
 
-export function getNumberOfCommitsByAuthor(commits: Commit[]) {
+export type NumberOfCommitsByAuthor = Record<string, number>;
+
+export function getNumberOfCommitsByAuthor(
+  commits: Commit[]
+): NumberOfCommitsByAuthor {
   const authors: Record<string, number> = {};
   commits.forEach((commit) => {
     if (!authors[commit.commit.author.name]) {

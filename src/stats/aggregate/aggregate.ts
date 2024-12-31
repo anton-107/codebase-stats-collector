@@ -6,6 +6,8 @@ type AggregateKey = string;
 
 type CommitToAggregateKey = (commit: Commit) => AggregateKey;
 
+export type AggregateFileData<T> = Record<FilePath, Record<AggregateKey, T>>;
+
 interface AggregateOptions {
   strategy: AggregateStrategy;
 }
@@ -69,7 +71,7 @@ export abstract class Aggregate<T> {
       );
     }
   }
-  public getData(): Record<FilePath, Record<AggregateKey, T>> {
+  public getData(): AggregateFileData<T> {
     return this.files;
   }
   public listFiles(): FilePath[] {

@@ -1,5 +1,7 @@
 import { Readable } from "stream";
 
+import { AggregateFileContributorsDashboard } from "./dashboard/aggregate-file-contributors-dashboard.js";
+import { SummaryDashboard } from "./dashboard/summary-dashboard.js";
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ExpandedCommit } from "./interfaces.js";
 import { ListOfContributorsPerFileAggregate } from "./stats/aggregate/list-of-contributors-per-file-aggregate.js";
@@ -27,17 +29,6 @@ export function timeLog(timerName: string) {
     // eslint-disable-next-line no-console
     console.timeLog(timerName);
   }
-}
-function clearConsole() {
-  process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
-  // eslint-disable-next-line no-console
-  console.clear();
-}
-
-async function collectCommitsByAuthor(repo: GitRepository) {
-  const commits = await repo.getListOfCommits();
-  const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
-  log("commitsByAuthor", commitsByAuthor);
 }
 
 async function collectHotFiles(commitsWithChangedFiles: ExpandedCommit[]) {
@@ -97,20 +88,27 @@ async function main() {
   );
 
   commitsStream.on("data", (commit) => {
-    log("Commit", commit);
+    debug("Commit", commit);
     intermediateAggregateMonthly.addCommit(commit);
     intermediateAggregateQuarterly.addCommit(commit);
 
-    clearConsole();
-
     // log("monthly data: ", intermediateAggregateMonthly.getData());
-    log("quarterly data: ", {
-      data: JSON.stringify(intermediateAggregateQuarterly.displayReport()),
-    });
+    const quarterlyDashboard = new AggregateFileContributorsDashboard(
+      intermediateAggregateQuarterly.getData()
+    );
+    log(quarterlyDashboard.displayDashboard(), {});
   });
   commitsStream.on("end", () => {
     log("done reading commits", {});
   });
+
+  // initialize dashboard
+  const summaryDashboard = new SummaryDashboard();
+
+  // number of commits by author:
+  const commits = await repo.getListOfCommits();
+  const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
+  summaryDashboard.setNumberOfCommitsPerAuthor(commitsByAuthor);
 
   const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles({
     stream: commitsStream,
@@ -118,7 +116,6 @@ async function main() {
   log("Finished fetching a list of changed files", {
     numberOfFiles: commitsWithChangedFiles.length,
   });
-  await collectCommitsByAuthor(repo);
   await collectHotFiles(commitsWithChangedFiles);
   await collectKnowledgeGaps(commitsWithChangedFiles);
   await collectDetailedContributorsPerFile(commitsWithChangedFiles);
