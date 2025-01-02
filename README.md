@@ -8,10 +8,16 @@ Module to collect data from a git repository.
 SOURCE_DIR=<PATH TO LOCAL GIT REPO>  npm run run-dev
 ```
 
-Set `NODE_ENV=production` if you want to skip debug-level logs:
+Set `NODE_ENV=production` to skip debug logs
 
 ```
 SOURCE_DIR=<PATH TO LOCAL GIT REPO> NODE_ENV=production npm run run-dev
+```
+
+Set `NODE_ENV=debug` to show extra debug logs
+
+```
+SOURCE_DIR=<PATH TO LOCAL GIT REPO> NODE_ENV=debug npm run run-dev
 ```
 
 ## Collected data:

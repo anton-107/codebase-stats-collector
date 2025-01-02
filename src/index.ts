@@ -15,7 +15,7 @@ export function log(arg1: string, arg2: object) {
   console.log(arg1, arg2);
 }
 export function debug(arg1: string, arg2: object) {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "debug") {
     // eslint-disable-next-line no-console
     console.debug(arg1, arg2);
   }
@@ -25,10 +25,20 @@ export function time(timerName: string) {
   console.time(timerName);
 }
 export function timeLog(timerName: string) {
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV === "debug") {
     // eslint-disable-next-line no-console
     console.timeLog(timerName);
   }
+}
+
+export function clearScreen() {
+  if (process.env.NODE_ENV === "debug") {
+    debug("Clearing screen disabled in debug mode", {});
+    return;
+  }
+  process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
+  // eslint-disable-next-line no-console
+  console.clear();
 }
 
 async function collectHotFiles(commitsWithChangedFiles: ExpandedCommit[]) {
@@ -55,23 +65,24 @@ async function collectKnowledgeGaps(commitsWithChangedFiles: ExpandedCommit[]) {
       .sort((a, b) => Number(a[1]) - Number(b[1]))
   );
 }
-async function collectDetailedContributorsPerFile(
+function collectDetailedContributorsPerFile(
   commitsWithChangedFiles: ExpandedCommit[]
 ) {
-  const listOfContributorsPerFile = await getListOfContributorsPerFile(
+  const listOfContributorsPerFile = getListOfContributorsPerFile(
     commitsWithChangedFiles
   );
   log("detailed contributors for each file", listOfContributorsPerFile);
 }
 
+/* eslint-disable-next-line max-lines-per-function */
 async function main() {
   const dir = process.env.SOURCE_DIR;
   if (!dir) {
     throw new Error("SOURCE_DIR is not set");
   }
 
+  // initialize repo
   const repo = new GitRepository(dir);
-  debug("Getting a list of changed files", { dir });
   const commitsStream = new Readable({
     objectMode: true,
     read() {
@@ -92,6 +103,7 @@ async function main() {
     intermediateAggregateQuarterly.getData()
   );
   const summaryDashboard = new SummaryDashboard([quarterlyDashboard]);
+  summaryDashboard.startProgress();
 
   let commitsCounter = 0;
   commitsStream.on("data", (commit: ExpandedCommit) => {
@@ -122,6 +134,6 @@ async function main() {
   });
   await collectHotFiles(commitsWithChangedFiles);
   await collectKnowledgeGaps(commitsWithChangedFiles);
-  await collectDetailedContributorsPerFile(commitsWithChangedFiles);
+  collectDetailedContributorsPerFile(commitsWithChangedFiles);
 }
 main();

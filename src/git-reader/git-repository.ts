@@ -27,10 +27,12 @@ export class GitRepository {
         previousCommit = c;
         continue;
       }
+      time(`getFilesDiff-${previousCommit.oid}-${c.oid}`);
       const changedFiles: ChangedFile[] = await this.getFilesDiff(
         previousCommit.oid,
         c.oid
       );
+      timeLog(`getFilesDiff-${previousCommit.oid}-${c.oid}`);
 
       const result = {
         oid: c.oid,
