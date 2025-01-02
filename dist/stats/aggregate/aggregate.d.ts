@@ -2,6 +2,7 @@ import { ChangedFile, ExpandedCommit } from "../../interfaces.js";
 export type AggregateStrategy = "year-month" | "year-quarter";
 export type FilePath = string;
 type AggregateKey = string;
+export type AggregateFileData<T> = Record<FilePath, Record<AggregateKey, T>>;
 interface AggregateOptions {
     strategy: AggregateStrategy;
 }
@@ -12,7 +13,7 @@ export declare abstract class Aggregate<T> {
     abstract initializeValue(): T;
     abstract incrementValue(currentValue: T, changedFile: ChangedFile, expandedCommit: ExpandedCommit): T;
     addCommit(expandedCommit: ExpandedCommit): void;
-    getData(): Record<FilePath, Record<AggregateKey, T>>;
+    getData(): AggregateFileData<T>;
     listFiles(): FilePath[];
     listAggregates(filePath: FilePath): AggregateKey[];
     getValue(filePath: FilePath, aggregateKey: AggregateKey): T;

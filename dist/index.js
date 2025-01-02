@@ -1,4 +1,6 @@
 import { Readable } from "stream";
+import { AggregateFileContributorsDashboard } from "./dashboard/aggregate-file-contributors-dashboard.js";
+import { SummaryDashboard } from "./dashboard/summary-dashboard.js";
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ListOfContributorsPerFileAggregate } from "./stats/aggregate/list-of-contributors-per-file-aggregate.js";
 import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
@@ -9,18 +11,21 @@ export function log(arg1, arg2) {
     // eslint-disable-next-line no-console
     console.log(arg1, arg2);
 }
+export function debug(arg1, arg2) {
+    if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.debug(arg1, arg2);
+    }
+}
 export function time(timerName) {
     // eslint-disable-next-line no-console
     console.time(timerName);
 }
 export function timeLog(timerName) {
-    // eslint-disable-next-line no-console
-    console.timeLog(timerName);
-}
-async function collectCommitsByAuthor(repo) {
-    const commits = await repo.getListOfCommits();
-    const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
-    log("commitsByAuthor", commitsByAuthor);
+    if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.timeLog(timerName);
+    }
 }
 async function collectHotFiles(commitsWithChangedFiles) {
     const commitsPerFile = getNumberOfChangesPerFile(commitsWithChangedFiles);
@@ -48,7 +53,7 @@ async function main() {
         throw new Error("SOURCE_DIR is not set");
     }
     const repo = new GitRepository(dir);
-    log("Getting a list of changed files", { dir });
+    debug("Getting a list of changed files", { dir });
     const commitsStream = new Readable({
         objectMode: true,
         read() {
@@ -61,25 +66,32 @@ async function main() {
     const intermediateAggregateQuarterly = new ListOfContributorsPerFileAggregate({
         strategy: "year-quarter",
     });
+    // initialize dashboard
+    const quarterlyDashboard = new AggregateFileContributorsDashboard(intermediateAggregateQuarterly.getData());
+    const summaryDashboard = new SummaryDashboard([quarterlyDashboard]);
+    let commitsCounter = 0;
     commitsStream.on("data", (commit) => {
-        log("Commit", commit);
+        debug("Commit", commit);
+        commitsCounter += 1;
         intermediateAggregateMonthly.addCommit(commit);
         intermediateAggregateQuarterly.addCommit(commit);
-        log("monthly data: ", intermediateAggregateMonthly.getData());
-        log("quarterly data: ", {
-            data: JSON.stringify(intermediateAggregateQuarterly.getData()),
-        });
+        quarterlyDashboard.updateData(intermediateAggregateQuarterly.getData());
+        summaryDashboard.setCurrentProgress(commitsCounter, commit);
     });
     commitsStream.on("end", () => {
         log("done reading commits", {});
     });
+    // number of commits by author:
+    const commits = await repo.getListOfCommits();
+    summaryDashboard.setCommits(commits);
+    const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
+    summaryDashboard.setNumberOfCommitsPerAuthor(commitsByAuthor);
     const commitsWithChangedFiles = await repo.getListOfCommitsWithChangedFiles({
         stream: commitsStream,
     });
     log("Finished fetching a list of changed files", {
         numberOfFiles: commitsWithChangedFiles.length,
     });
-    await collectCommitsByAuthor(repo);
     await collectHotFiles(commitsWithChangedFiles);
     await collectKnowledgeGaps(commitsWithChangedFiles);
     await collectDetailedContributorsPerFile(commitsWithChangedFiles);

@@ -87,26 +87,30 @@ async function main() {
     }
   );
 
-  commitsStream.on("data", (commit) => {
+  // initialize dashboard
+  const quarterlyDashboard = new AggregateFileContributorsDashboard(
+    intermediateAggregateQuarterly.getData()
+  );
+  const summaryDashboard = new SummaryDashboard([quarterlyDashboard]);
+
+  let commitsCounter = 0;
+  commitsStream.on("data", (commit: ExpandedCommit) => {
     debug("Commit", commit);
+
+    commitsCounter += 1;
     intermediateAggregateMonthly.addCommit(commit);
     intermediateAggregateQuarterly.addCommit(commit);
 
-    // log("monthly data: ", intermediateAggregateMonthly.getData());
-    const quarterlyDashboard = new AggregateFileContributorsDashboard(
-      intermediateAggregateQuarterly.getData()
-    );
-    log(quarterlyDashboard.displayDashboard(), {});
+    quarterlyDashboard.updateData(intermediateAggregateQuarterly.getData());
+    summaryDashboard.setCurrentProgress(commitsCounter, commit);
   });
   commitsStream.on("end", () => {
     log("done reading commits", {});
   });
 
-  // initialize dashboard
-  const summaryDashboard = new SummaryDashboard();
-
   // number of commits by author:
   const commits = await repo.getListOfCommits();
+  summaryDashboard.setCommits(commits);
   const commitsByAuthor = getNumberOfCommitsByAuthor(commits);
   summaryDashboard.setNumberOfCommitsPerAuthor(commitsByAuthor);
 

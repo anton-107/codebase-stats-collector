@@ -25,3 +25,7 @@ export interface ExpandedCommit {
   commit: Commit;
   changedFiles: ChangedFile[];
 }
+
+export interface Dashboard {
+  displayDashboard(): string;
+}

@@ -1,6 +1,6 @@
 import fs from "fs";
 import git from "isomorphic-git";
-import { log, time, timeLog } from "../index.js";
+import { time, timeLog } from "../index.js";
 export class GitRepository {
     repoPath;
     constructor(repoPath) {
@@ -12,25 +12,13 @@ export class GitRepository {
     async getListOfCommitsWithChangedFiles(options = {}) {
         const results = [];
         const commits = await this.getListOfCommits();
-        log("Fetched list of commits", {
-            numberOfCommits: commits.length,
-            newestCommitDate: new Date(commits[0].commit.author.timestamp * 1000).toISOString(),
-            oldestCommitDate: new Date(commits[commits.length - 1].commit.author.timestamp * 1000).toISOString(),
-        });
         let previousCommit;
-        let i = 0;
         time("getListOfCommitsWithChangedFiles");
         for (const c of commits) {
-            i += 1;
             if (!previousCommit) {
                 previousCommit = c;
                 continue;
             }
-            log("Getting files diff between two commits", {
-                progress: `${i} of ${commits.length}`,
-                commitDate: new Date(c.commit.author.timestamp * 1000).toISOString(),
-            });
-            timeLog("getListOfCommitsWithChangedFiles");
             const changedFiles = await this.getFilesDiff(previousCommit.oid, c.oid);
             const result = {
                 oid: c.oid,
@@ -43,6 +31,7 @@ export class GitRepository {
             }
             previousCommit = c;
         }
+        timeLog("getListOfCommitsWithChangedFiles");
         return results;
     }
     async getFilesDiff(prevOID, nextOID) {

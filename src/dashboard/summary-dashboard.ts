@@ -1,4 +1,5 @@
 import { log } from "../index.js";
+import { Commit, Dashboard, ExpandedCommit } from "../interfaces.js";
 import { NumberOfCommitsByAuthor } from "../stats/number-of-commits-by-author.js";
 
 function clearScreen() {
@@ -13,7 +14,14 @@ type TopAuthorRecord = {
 };
 
 export class SummaryDashboard {
+  private totalNumberOfCommits: number = null;
+  private newestCommitDate: string = null;
+  private oldestCommitDate: string = null;
   private topAuthorsAllTime: TopAuthorRecord[] = [];
+  private processedNumberOfCommits: number = null;
+  private processedCommitDate: string = null;
+
+  public constructor(private subDashboards: Dashboard[]) {}
 
   public setNumberOfCommitsPerAuthor(data: NumberOfCommitsByAuthor) {
     const out: TopAuthorRecord[] = [];
@@ -29,13 +37,59 @@ export class SummaryDashboard {
     this.render();
   }
 
+  public setCommits(commits: Commit[]) {
+    this.totalNumberOfCommits = commits.length;
+    this.newestCommitDate = new Date(
+      commits[0].commit.author.timestamp * 1000
+    ).toISOString();
+    this.oldestCommitDate = new Date(
+      commits[commits.length - 1].commit.author.timestamp * 1000
+    ).toISOString();
+    this.render();
+  }
+
+  public setCurrentProgress(
+    progressCounter: number,
+    currentCommit: ExpandedCommit
+  ) {
+    this.processedNumberOfCommits = progressCounter;
+    this.processedCommitDate = new Date(
+      currentCommit.commit.commit.author.timestamp * 1000
+    ).toISOString();
+
+    this.render();
+  }
+
+  public rerender() {
+    this.render();
+  }
+
   private render() {
     clearScreen();
-    log("Top 10 authors:", {});
-    log("============", {});
-    for (let i = 0; i < 10; i++) {
-      log(this.topAuthorsAllTime[i].name, {
-        numberOfUpdates: this.topAuthorsAllTime[i].numberOfUpdates,
+    log("Commits in this repository", {
+      total: this.totalNumberOfCommits,
+      oldest: this.oldestCommitDate,
+      newest: this.newestCommitDate,
+    });
+
+    if (this.topAuthorsAllTime.length > 10) {
+      log("Top 10 authors:", {});
+      log("============", {});
+      for (let i = 0; i < 10; i++) {
+        log(this.topAuthorsAllTime[i].name, {
+          numberOfUpdates: this.topAuthorsAllTime[i].numberOfUpdates,
+        });
+      }
+    }
+
+    for (const subDashboard of this.subDashboards) {
+      log(subDashboard.displayDashboard(), {});
+    }
+
+    if (this.processedNumberOfCommits) {
+      log("Read progress", {
+        progress: `${this.processedNumberOfCommits} / ${this.totalNumberOfCommits}`,
+        currentCursorDate: this.processedCommitDate,
       });
     }
   }
