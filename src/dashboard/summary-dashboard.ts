@@ -107,6 +107,7 @@ export class SummaryDashboard {
     }
 
     for (const subDashboard of this.subDashboards) {
+      log("\n\n", {});
       log(subDashboard.displayDashboard(), {});
     }
 

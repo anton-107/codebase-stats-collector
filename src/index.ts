@@ -74,7 +74,7 @@ function collectDetailedContributorsPerFile(
   log("detailed contributors for each file", listOfContributorsPerFile);
 }
 
-/* eslint-disable-next-line max-lines-per-function */
+/* eslint-disable-next-line max-lines-per-function, max-statements */
 async function main() {
   const dir = process.env.SOURCE_DIR;
   if (!dir) {
@@ -89,6 +89,12 @@ async function main() {
       // do nothing.
     },
   });
+  const intermediateAggregateAllTime = new ListOfContributorsPerFileAggregate({
+    strategy: "all-time",
+  });
+  const intermediateAggregateYearly = new ListOfContributorsPerFileAggregate({
+    strategy: "year",
+  });
   const intermediateAggregateMonthly = new ListOfContributorsPerFileAggregate({
     strategy: "year-month",
   });
@@ -99,10 +105,16 @@ async function main() {
   );
 
   // initialize dashboard
+  const allTimeDashboard = new AggregateFileContributorsDashboard(
+    intermediateAggregateAllTime.getData()
+  );
   const quarterlyDashboard = new AggregateFileContributorsDashboard(
     intermediateAggregateQuarterly.getData()
   );
-  const summaryDashboard = new SummaryDashboard([quarterlyDashboard]);
+  const summaryDashboard = new SummaryDashboard([
+    allTimeDashboard,
+    quarterlyDashboard,
+  ]);
   summaryDashboard.startProgress();
 
   let commitsCounter = 0;
@@ -110,10 +122,11 @@ async function main() {
     debug("Commit", commit);
 
     commitsCounter += 1;
+    intermediateAggregateAllTime.addCommit(commit);
+    intermediateAggregateYearly.addCommit(commit);
     intermediateAggregateMonthly.addCommit(commit);
     intermediateAggregateQuarterly.addCommit(commit);
 
-    quarterlyDashboard.updateData(intermediateAggregateQuarterly.getData());
     summaryDashboard.setCurrentProgress(commitsCounter, commit);
   });
   commitsStream.on("error", (err) => {
