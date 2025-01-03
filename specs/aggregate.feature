@@ -15,7 +15,7 @@ Feature: Aggregate class is an abstract class to keep summary of a repository st
     When I call listFiles method
     Then I get an empty list in response
 
-  Scenario: commits of type modify should aggregate data for a file-key
+  Scenario: commits of type modify should aggregate data for a file-key (year-quarter)
     Given I use a TestAggregate class
     When I use a 'year-quarter' strategy
     And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-04'
@@ -25,4 +25,28 @@ Feature: Aggregate class is an abstract class to keep summary of a repository st
     When I call listAggregates method for 'src/file-1'
     Then I get a list with 1 value in response
     When I call getValue method for 'src/file-1' and '2023-Q2'
+    Then I get a number with value 4 in response
+
+  Scenario: commits of type modify should aggregate data for a file-key (year)
+    Given I use a TestAggregate class
+    When I use a 'year' strategy
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-04'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-03'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-02'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-01'
+    When I call listAggregates method for 'src/file-1'
+    Then I get a list with 1 value in response
+    When I call getValue method for 'src/file-1' and '2023'
+    Then I get a number with value 4 in response
+
+  Scenario: commits of type modify should aggregate data for a file-key (all-time)
+    Given I use a TestAggregate class
+    When I use a 'all-time' strategy
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2022-05-04'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2023-05-03'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2024-05-02'
+    And I add commit of type 'modify' with filename 'src/file-1' and commite date '2025-05-01'
+    When I call listAggregates method for 'src/file-1'
+    Then I get a list with 1 value in response
+    When I call getValue method for 'src/file-1' and 'all-time'
     Then I get a number with value 4 in response
