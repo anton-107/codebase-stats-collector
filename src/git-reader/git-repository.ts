@@ -2,6 +2,7 @@ import fs from "fs";
 import git from "isomorphic-git";
 import { Readable } from "stream";
 
+import { ResumableProcessor } from "../cache/resumable-processor.js";
 import { time, timeLog } from "../index.js";
 import { ChangedFile, Commit, ExpandedCommit } from "../interfaces.js";
 
@@ -10,6 +11,8 @@ interface GitReadOptions {
 }
 
 export class GitRepository {
+  private previousCommit: Commit = null;
+
   constructor(private repoPath: string) {}
 
   public async getListOfCommits(): Promise<Commit[]> {
@@ -18,38 +21,57 @@ export class GitRepository {
   public async getListOfCommitsWithChangedFiles(
     options: GitReadOptions = {}
   ): Promise<ExpandedCommit[]> {
-    const results: ExpandedCommit[] = [];
     const commits = await this.getListOfCommits();
-    let previousCommit;
     time("getListOfCommitsWithChangedFiles");
-    for (const c of commits) {
-      if (!previousCommit) {
-        previousCommit = c;
-        continue;
-      }
-      time(`getFilesDiff-${previousCommit.oid}-${c.oid}`);
-      const changedFiles: ChangedFile[] = await this.getFilesDiff(
-        previousCommit.oid,
-        c.oid
-      );
-      timeLog(`getFilesDiff-${previousCommit.oid}-${c.oid}`);
 
-      const result = {
-        oid: c.oid,
-        commit: previousCommit,
-        changedFiles,
-      };
+    const taskProcessor = new ResumableProcessor(".cache", 100);
+    const results: ExpandedCommit[] = await taskProcessor.process(
+      this.repoPath,
+      commits,
+      this.getFilesDiffWithCursor.bind(this, options),
+      this.updateGitReadStream.bind(this, options)
+    );
 
-      results.push(result);
-
-      if (options.stream) {
-        options.stream.push(result);
-      }
-
-      previousCommit = c;
-    }
     timeLog("getListOfCommitsWithChangedFiles");
     return results;
+  }
+  private async getFilesDiffWithCursor(
+    options: GitReadOptions = {},
+    cursor: Commit
+  ): Promise<ExpandedCommit> {
+    if (!this.previousCommit) {
+      this.previousCommit = cursor;
+      return null;
+    }
+    const taskID = `getFilesDiff-${this.previousCommit.oid}-${cursor.oid}`;
+    time(taskID);
+    const changedFiles: ChangedFile[] = await this.getFilesDiff(
+      this.previousCommit.oid,
+      cursor.oid
+    );
+    timeLog(taskID);
+
+    const result = {
+      oid: cursor.oid,
+      commit: this.previousCommit,
+      changedFiles,
+    };
+
+    this.updateGitReadStream(options, result);
+
+    this.previousCommit = cursor;
+
+    return result;
+  }
+  private updateGitReadStream(
+    options: GitReadOptions = {},
+    result: ExpandedCommit
+  ) {
+    if (options.stream) {
+      if (result !== null) {
+        options.stream.push(result);
+      }
+    }
   }
   private async getFilesDiff(
     prevOID: string,

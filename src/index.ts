@@ -107,7 +107,7 @@ async function main() {
 
   let commitsCounter = 0;
   commitsStream.on("data", (commit: ExpandedCommit) => {
-    debug("Commit", commit);
+    log("Commit", commit);
 
     commitsCounter += 1;
     intermediateAggregateMonthly.addCommit(commit);
@@ -116,8 +116,14 @@ async function main() {
     quarterlyDashboard.updateData(intermediateAggregateQuarterly.getData());
     summaryDashboard.setCurrentProgress(commitsCounter, commit);
   });
+  commitsStream.on("error", (err) => {
+    log("error reading commits", { err });
+  });
   commitsStream.on("end", () => {
     log("done reading commits", {});
+  });
+  commitsStream.on("close", () => {
+    log("stream closed", {});
   });
 
   // number of commits by author:
