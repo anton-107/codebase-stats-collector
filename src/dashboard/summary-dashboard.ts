@@ -88,10 +88,6 @@ export class SummaryDashboard {
     this.render();
   }
 
-  public rerender() {
-    this.render();
-  }
-
   private render() {
     clearScreen();
     log("Commits in this repository", {
