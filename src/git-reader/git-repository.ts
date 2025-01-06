@@ -33,7 +33,7 @@ export class GitRepository {
     );
 
     timeLog("getListOfCommitsWithChangedFiles");
-    return results;
+    return results.filter((x) => x !== null);
   }
   private async getFilesDiffWithCursor(
     options: GitReadOptions = {},

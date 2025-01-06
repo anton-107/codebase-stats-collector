@@ -43,14 +43,12 @@ export function clearScreen() {
 
 async function collectHotFiles(commitsWithChangedFiles: ExpandedCommit[]) {
   const commitsPerFile = getNumberOfChangesPerFile(commitsWithChangedFiles);
-  log(
-    "hot files (files with most changes)",
-    Object.keys(commitsPerFile)
-      .map((x) => {
-        return [x, commitsPerFile[x]];
-      })
-      .sort((a, b) => Number(b[1]) - Number(a[1]))
-  );
+  const data = Object.keys(commitsPerFile).map((x) => {
+    return [x, commitsPerFile[x]];
+  });
+  data.sort((a, b) => Number(b[1]) - Number(a[1]));
+  const hotFiles = data.slice(0, 50);
+  log("hot files (files with most changes)", hotFiles);
 }
 async function collectKnowledgeGaps(commitsWithChangedFiles: ExpandedCommit[]) {
   const contributorsPerFile = getNumberOfContributorsPerFile(
@@ -63,6 +61,7 @@ async function collectKnowledgeGaps(commitsWithChangedFiles: ExpandedCommit[]) {
         return [x, contributorsPerFile[x]];
       })
       .sort((a, b) => Number(a[1]) - Number(b[1]))
+      .slice(0, 50)
   );
 }
 function collectDetailedContributorsPerFile(
