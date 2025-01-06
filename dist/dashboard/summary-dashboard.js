@@ -1,8 +1,30 @@
-import { log } from "../index.js";
-function clearScreen() {
-    process.stdout.write("\u001b[3J\u001b[2J\u001b[1J");
-    // eslint-disable-next-line no-console
-    console.clear();
+import { clearScreen, log } from "../index.js";
+class Timer {
+    startTime = null;
+    start() {
+        this.startTime = Date.now(); // Stores current timestamp in milliseconds
+    }
+    getElapsedSeconds() {
+        if (!this.startTime) {
+            throw new Error("Timer not started");
+        }
+        return parseFloat(Number((Date.now() - this.startTime) / 1000).toFixed(3));
+    }
+}
+class ProgressEstimator {
+    processedItems;
+    totalItems;
+    elapsedSeconds;
+    constructor(processedItems, totalItems, elapsedSeconds) {
+        this.processedItems = processedItems;
+        this.totalItems = totalItems;
+        this.elapsedSeconds = elapsedSeconds;
+    }
+    getEstimatedSecondsRemaining() {
+        const itemsLeft = this.totalItems - this.processedItems;
+        const itemsPerSecond = this.processedItems / this.elapsedSeconds;
+        return Number((itemsLeft / itemsPerSecond).toFixed(3));
+    }
 }
 export class SummaryDashboard {
     subDashboards;
@@ -12,6 +34,7 @@ export class SummaryDashboard {
     topAuthorsAllTime = [];
     processedNumberOfCommits = null;
     processedCommitDate = null;
+    progressTimer = new Timer();
     constructor(subDashboards) {
         this.subDashboards = subDashboards;
     }
@@ -32,12 +55,12 @@ export class SummaryDashboard {
         this.oldestCommitDate = new Date(commits[commits.length - 1].commit.author.timestamp * 1000).toISOString();
         this.render();
     }
+    startProgress() {
+        this.progressTimer.start();
+    }
     setCurrentProgress(progressCounter, currentCommit) {
         this.processedNumberOfCommits = progressCounter;
         this.processedCommitDate = new Date(currentCommit.commit.commit.author.timestamp * 1000).toISOString();
-        this.render();
-    }
-    rerender() {
         this.render();
     }
     render() {
@@ -57,12 +80,17 @@ export class SummaryDashboard {
             }
         }
         for (const subDashboard of this.subDashboards) {
+            log("\n\n", {});
             log(subDashboard.displayDashboard(), {});
         }
         if (this.processedNumberOfCommits) {
+            const elapsedSeconds = this.progressTimer.getElapsedSeconds();
+            const estimator = new ProgressEstimator(this.processedNumberOfCommits, this.totalNumberOfCommits, elapsedSeconds);
             log("Read progress", {
                 progress: `${this.processedNumberOfCommits} / ${this.totalNumberOfCommits}`,
                 currentCursorDate: this.processedCommitDate,
+                elapsedTime: `${elapsedSeconds} seconds`,
+                estimatedTimeLeft: `${estimator.getEstimatedSecondsRemaining()} seconds`,
             });
         }
     }

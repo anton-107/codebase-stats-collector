@@ -1,3 +1,8 @@
+const commitToYear = (commit) => {
+    const t = commit.commit.author.timestamp;
+    const commitDate = new Date(t * 1000);
+    return `${commitDate.getFullYear()}`;
+};
 const commitToYearMonth = (commit) => {
     const t = commit.commit.author.timestamp;
     const commitDate = new Date(t * 1000);
@@ -14,6 +19,12 @@ export class Aggregate {
     strategy;
     constructor(options) {
         switch (options.strategy) {
+            case "year":
+                this.strategy = commitToYear;
+                break;
+            case "all-time":
+                this.strategy = () => "all-time";
+                break;
             case "year-month":
                 this.strategy = commitToYearMonth;
                 break;

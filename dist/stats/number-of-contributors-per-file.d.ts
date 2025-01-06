@@ -1,2 +1,10 @@
 import { ExpandedCommit } from "../interfaces.js";
-export declare function getNumberOfContributorsPerFile(commits: ExpandedCommit[]): Record<string, number>;
+interface ContributorsSummary {
+    filePath: string;
+    contributorsNames: string[];
+    firstChange: Date;
+    lastChange: Date;
+    isExistingFile: boolean;
+}
+export declare function getNumberOfContributorsPerFile(commits: ExpandedCommit[]): ContributorsSummary[];
+export {};

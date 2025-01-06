@@ -6,9 +6,13 @@ interface GitReadOptions {
 }
 export declare class GitRepository {
     private repoPath;
+    private previousCommit;
     constructor(repoPath: string);
     getListOfCommits(): Promise<Commit[]>;
     getListOfCommitsWithChangedFiles(options?: GitReadOptions): Promise<ExpandedCommit[]>;
+    private getFilesDiffWithCursor;
+    private updateGitReadStream;
     private getFilesDiff;
+    private checkFileExists;
 }
 export {};

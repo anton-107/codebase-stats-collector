@@ -1,8 +1,11 @@
+import { stat } from "node:fs/promises";
 import fs from "fs";
 import git from "isomorphic-git";
+import { ResumableProcessor } from "../cache/resumable-processor.js";
 import { time, timeLog } from "../index.js";
 export class GitRepository {
     repoPath;
+    previousCommit = null;
     constructor(repoPath) {
         this.repoPath = repoPath;
     }
@@ -10,36 +13,44 @@ export class GitRepository {
         return await git.log({ fs, dir: this.repoPath });
     }
     async getListOfCommitsWithChangedFiles(options = {}) {
-        const results = [];
         const commits = await this.getListOfCommits();
-        let previousCommit;
         time("getListOfCommitsWithChangedFiles");
-        for (const c of commits) {
-            if (!previousCommit) {
-                previousCommit = c;
-                continue;
-            }
-            const changedFiles = await this.getFilesDiff(previousCommit.oid, c.oid);
-            const result = {
-                oid: c.oid,
-                commit: previousCommit,
-                changedFiles,
-            };
-            results.push(result);
-            if (options.stream) {
+        const taskProcessor = new ResumableProcessor(".cache", 100);
+        const results = await taskProcessor.process(this.repoPath, commits, this.getFilesDiffWithCursor.bind(this, options), this.updateGitReadStream.bind(this, options));
+        timeLog("getListOfCommitsWithChangedFiles");
+        return results.filter((x) => x !== null);
+    }
+    async getFilesDiffWithCursor(options = {}, cursor) {
+        if (!this.previousCommit) {
+            this.previousCommit = cursor;
+            return null;
+        }
+        const taskID = `getFilesDiff-${this.previousCommit.oid}-${cursor.oid}`;
+        time(taskID);
+        const changedFiles = await this.getFilesDiff(this.previousCommit.oid, cursor.oid);
+        timeLog(taskID);
+        const result = {
+            oid: cursor.oid,
+            commit: this.previousCommit,
+            changedFiles,
+        };
+        this.updateGitReadStream(options, result);
+        this.previousCommit = cursor;
+        return result;
+    }
+    updateGitReadStream(options = {}, result) {
+        if (options.stream) {
+            if (result !== null) {
                 options.stream.push(result);
             }
-            previousCommit = c;
         }
-        timeLog("getListOfCommitsWithChangedFiles");
-        return results;
     }
     async getFilesDiff(prevOID, nextOID) {
-        return await git.walk({
+        const files = await git.walk({
             fs,
             dir: this.repoPath,
             trees: [git.TREE({ ref: prevOID }), git.TREE({ ref: nextOID })],
-            map: async function (filepath, [commitA, commitB]) {
+            map: async (filepath, [commitA, commitB]) => {
                 let aOID = "";
                 let bOID = "";
                 let aType = "";
@@ -85,6 +96,20 @@ export class GitRepository {
                 };
             },
         });
+        // check if file exists:
+        for (const file of files) {
+            file.isExistingFile = await this.checkFileExists(`${this.repoPath}${file.path}`);
+        }
+        return files;
+    }
+    async checkFileExists(path) {
+        try {
+            const stats = await stat(path);
+            return stats.isFile();
+        }
+        catch {
+            return false;
+        }
     }
 }
 //# sourceMappingURL=git-repository.js.map

@@ -1,5 +1,5 @@
 import { ChangedFile, ExpandedCommit } from "../../interfaces.js";
-export type AggregateStrategy = "year-month" | "year-quarter";
+export type AggregateStrategy = "year-month" | "year-quarter" | "year" | "all-time";
 export type FilePath = string;
 type AggregateKey = string;
 export type AggregateFileData<T> = Record<FilePath, Record<AggregateKey, T>>;

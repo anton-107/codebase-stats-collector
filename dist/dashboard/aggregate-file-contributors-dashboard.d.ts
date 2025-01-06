@@ -5,5 +5,6 @@ export declare class AggregateFileContributorsDashboard implements Dashboard {
     private data;
     constructor(data: AggregateFileData<Contributor[]>);
     displayDashboard(): string;
-    updateData(data: AggregateFileData<Contributor[]>): void;
+    private collectTopContributorForFile;
+    private renderTimeSpanTopList;
 }

@@ -8,10 +8,11 @@ export declare class SummaryDashboard {
     private topAuthorsAllTime;
     private processedNumberOfCommits;
     private processedCommitDate;
+    private progressTimer;
     constructor(subDashboards: Dashboard[]);
     setNumberOfCommitsPerAuthor(data: NumberOfCommitsByAuthor): void;
     setCommits(commits: Commit[]): void;
+    startProgress(): void;
     setCurrentProgress(progressCounter: number, currentCommit: ExpandedCommit): void;
-    rerender(): void;
     private render;
 }

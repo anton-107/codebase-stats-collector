@@ -7,6 +7,7 @@ export type ChangedFileType = "modify" | "add" | "remove" | "equal";
 export interface ChangedFile {
     type: ChangedFileType;
     path: string;
+    isExistingFile: boolean;
 }
 export interface Commit {
     oid: string;
