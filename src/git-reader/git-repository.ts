@@ -1,10 +1,17 @@
+import { stat } from "node:fs/promises";
+
 import fs from "fs";
 import git from "isomorphic-git";
 import { Readable } from "stream";
 
 import { ResumableProcessor } from "../cache/resumable-processor.js";
 import { time, timeLog } from "../index.js";
-import { ChangedFile, Commit, ExpandedCommit } from "../interfaces.js";
+import {
+  ChangedFile,
+  ChangedFileType,
+  Commit,
+  ExpandedCommit,
+} from "../interfaces.js";
 
 interface GitReadOptions {
   stream?: Readable;
@@ -77,11 +84,11 @@ export class GitRepository {
     prevOID: string,
     nextOID: string
   ): Promise<ChangedFile[]> {
-    return await git.walk({
+    const files = await git.walk({
       fs,
       dir: this.repoPath,
       trees: [git.TREE({ ref: prevOID }), git.TREE({ ref: nextOID })],
-      map: async function (filepath, [commitA, commitB]) {
+      map: async (filepath, [commitA, commitB]) => {
         let aOID = "";
         let bOID = "";
         let aType = "";
@@ -115,7 +122,7 @@ export class GitRepository {
         }
 
         // determine modification type:
-        let type = "equal";
+        let type: ChangedFileType = "equal";
         if (aOID !== bOID) {
           type = "modify";
         }
@@ -132,5 +139,20 @@ export class GitRepository {
         };
       },
     });
+    // check if file exists:
+    for (const file of files) {
+      file.isExistingFile = await this.checkFileExists(
+        `${this.repoPath}${file.path}`
+      );
+    }
+    return files;
+  }
+  private async checkFileExists(path: string): Promise<boolean> {
+    try {
+      const stats = await stat(path);
+      return stats.isFile();
+    } catch {
+      return false;
+    }
   }
 }

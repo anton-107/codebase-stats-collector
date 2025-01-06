@@ -5,7 +5,6 @@ import { SummaryDashboard } from "./dashboard/summary-dashboard.js";
 import { GitRepository } from "./git-reader/git-repository.js";
 import { ExpandedCommit } from "./interfaces.js";
 import { ListOfContributorsPerFileAggregate } from "./stats/aggregate/list-of-contributors-per-file-aggregate.js";
-import { getListOfContributorsPerFile } from "./stats/list-of-contributors-per-file.js";
 import { getNumberOfChangesPerFile } from "./stats/number-of-changes-per-file.js";
 import { getNumberOfCommitsByAuthor } from "./stats/number-of-commits-by-author.js";
 import { getNumberOfContributorsPerFile } from "./stats/number-of-contributors-per-file.js";
@@ -53,25 +52,27 @@ async function collectHotFiles(commitsWithChangedFiles: ExpandedCommit[]) {
 async function collectKnowledgeGaps(commitsWithChangedFiles: ExpandedCommit[]) {
   const contributorsPerFile = getNumberOfContributorsPerFile(
     commitsWithChangedFiles
-  );
+  ).filter((x) => x.isExistingFile);
   log(
     "knowledge gaps (files with least number of contributors)",
-    Object.keys(contributorsPerFile)
-      .map((x) => {
-        return [x, contributorsPerFile[x]];
+    contributorsPerFile
+      .sort((a, b) => {
+        if (a.contributorsNames.length === b.contributorsNames.length) {
+          return a.lastChange.getTime() - b.lastChange.getTime();
+        }
+        return a.contributorsNames.length - b.contributorsNames.length;
       })
-      .sort((a, b) => Number(a[1]) - Number(b[1]))
       .slice(0, 50)
   );
 }
-function collectDetailedContributorsPerFile(
-  commitsWithChangedFiles: ExpandedCommit[]
-) {
-  const listOfContributorsPerFile = getListOfContributorsPerFile(
-    commitsWithChangedFiles
-  );
-  log("detailed contributors for each file", listOfContributorsPerFile);
-}
+// function collectDetailedContributorsPerFile(
+//   commitsWithChangedFiles: ExpandedCommit[]
+// ) {
+//   const listOfContributorsPerFile = getListOfContributorsPerFile(
+//     commitsWithChangedFiles
+//   );
+//   log("detailed contributors for each file", listOfContributorsPerFile);
+// }
 
 /* eslint-disable-next-line max-lines-per-function, max-statements */
 async function main() {
@@ -152,6 +153,6 @@ async function main() {
   });
   await collectHotFiles(commitsWithChangedFiles);
   await collectKnowledgeGaps(commitsWithChangedFiles);
-  collectDetailedContributorsPerFile(commitsWithChangedFiles);
+  // collectDetailedContributorsPerFile(commitsWithChangedFiles);
 }
 main();
