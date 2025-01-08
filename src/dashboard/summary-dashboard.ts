@@ -1,4 +1,4 @@
-import { clearScreen, log } from "../index.js";
+import { clearScreen, log } from "../console/console.js";
 import { Commit, Dashboard, ExpandedCommit } from "../interfaces.js";
 import { NumberOfCommitsByAuthor } from "../stats/number-of-commits-by-author.js";
 

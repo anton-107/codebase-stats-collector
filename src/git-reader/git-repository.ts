@@ -5,7 +5,7 @@ import git from "isomorphic-git";
 import { Readable } from "stream";
 
 import { ResumableProcessor } from "../cache/resumable-processor.js";
-import { time, timeLog } from "../index.js";
+import { time, timeLog } from "../console/console.js";
 import {
   ChangedFile,
   ChangedFileType,

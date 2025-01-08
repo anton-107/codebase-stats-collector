@@ -1,4 +1,4 @@
-import { clearScreen, log } from "../index.js";
+import { clearScreen, log } from "../console/console.js";
 class Timer {
     startTime = null;
     start() {

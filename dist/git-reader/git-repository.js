@@ -2,7 +2,7 @@ import { stat } from "node:fs/promises";
 import fs from "fs";
 import git from "isomorphic-git";
 import { ResumableProcessor } from "../cache/resumable-processor.js";
-import { time, timeLog } from "../index.js";
+import { time, timeLog } from "../console/console.js";
 export class GitRepository {
     repoPath;
     previousCommit = null;
